@@ -56,6 +56,7 @@ function PlayerStatsManager.reset(player)
 		if ps:FindFirstChild("DamageDealt") then ps.DamageDealt.Value = 0 end
 		if ps:FindFirstChild("QueuedSupply") then ps.QueuedSupply.Value = 0 end
 		if ps:FindFirstChild("CanBuild") then ps.CanBuild.Value = 1 end
+		if ps:FindFirstChild("CurrentUnits") then ps.CurrentUnits.Value = 0 end
 	end
 end
 
