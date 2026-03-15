@@ -239,7 +239,7 @@ local function getOwnedWorldCounts(ownerName)
 	local armyContainer = currentMap and currentMap:FindFirstChild("Army")
 
 	if buildingContainer then
-		for _, inst in ipairs(buildingContainer:GetDescendants()) do
+		for _, inst in ipairs(buildingContainer:GetChildren()) do
 			if inst:IsA("Model") and inst:GetAttribute("Type") and inst:GetAttribute("Owner") == ownerName then
 				buildingCount += 1
 			end
