@@ -5,6 +5,8 @@ local ServerStorage = game:GetService("ServerStorage")
 local Config = require(ReplicatedStorage:WaitForChild("BuildingConfig"))
 local BuildingsFolder = ReplicatedStorage:WaitForChild("Buildings")
 
+local templateDescendantsCache = {}
+
 local UpgradeManager = {}
 UpgradeManager.__index = UpgradeManager
 
@@ -149,17 +151,38 @@ function UpgradeManager:completeUpgrade(building, data)
 	newBuilding.Name = newType
 	newBuilding:PivotTo(finalCF)
 
-	local function applyTeamColor(model, player)
+	if not templateDescendantsCache[newType] then
+		local baseParts = {}
+		local teamPaints = {}
+		for i, part in ipairs(template:GetDescendants()) do
+			if part:IsA("BasePart") then
+				table.insert(baseParts, i)
+				if part.Name == "TeamPaint" then
+					table.insert(teamPaints, i)
+				end
+			end
+		end
+		templateDescendantsCache[newType] = {
+			baseParts = baseParts,
+			teamPaints = teamPaints
+		}
+	end
+
+	local cache = templateDescendantsCache[newType]
+	local descendants = newBuilding:GetDescendants()
+
+	local function applyTeamColor(player)
 		if not player then return end
 		local teamColor = player:GetAttribute("TeamColor")
 		if not teamColor then return end
-		for _, part in pairs(model:GetDescendants()) do
-			if part:IsA("BasePart") and part.Name == "TeamPaint" then
+		for _, idx in ipairs(cache.teamPaints) do
+			local part = descendants[idx]
+			if part then
 				part.Color = teamColor
 			end
 		end
 	end
-	applyTeamColor(newBuilding, data.player)
+	applyTeamColor(data.player)
 
 	newBuilding:SetAttribute("Owner", owner)
 	newBuilding:SetAttribute("Type", newType)
@@ -211,9 +234,9 @@ function UpgradeManager:completeUpgrade(building, data)
 		hum.Health = newData.Health * healthPercent
 	end
 
-	local hasSetCollisionGroup = _G.setCollisionGroup ~= nil
-	for _, part in ipairs(newBuilding:GetDescendants()) do
-		if part:IsA("BasePart") then
+	for _, idx in ipairs(cache.baseParts) do
+		local part = descendants[idx]
+		if part then
 			part.Anchored = true
 			if not hasSetCollisionGroup then
 				part.CollisionGroup = "Default"

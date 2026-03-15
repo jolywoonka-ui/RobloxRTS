@@ -36,15 +36,26 @@ local BLACKLISTED_MATERIALS = {
 	[Enum.Material.ForceField] = true,
 }
 
+local teamPaintCache = setmetatable({}, {__mode = "k"})
+
 -- ÃÂ¤Ã‘Æ’ÃÂ½ÃÂºÃ‘â€ ÃÂ¸Ã‘Â ÃÂ¿ÃÂ¾ÃÂºÃ‘â‚¬ÃÂ°Ã‘ÂÃÂºÃÂ¸ ÃÂ² Ã‘â€ ÃÂ²ÃÂµÃ‘â€š ÃÂºÃÂ¾ÃÂ¼ÃÂ°ÃÂ½ÃÂ´Ã‘â€¹
 local function applyTeamColor(model, player)
 	if not player then return end
 	local teamColor = player:GetAttribute("TeamColor")
 	if not teamColor then return end
-	for _, part in pairs(model:GetDescendants()) do
-		if part:IsA("BasePart") and part.Name == "TeamPaint" then
-			part.Color = teamColor
+
+	if not teamPaintCache[model] then
+		local parts = {}
+		for _, part in pairs(model:GetDescendants()) do
+			if part:IsA("BasePart") and part.Name == "TeamPaint" then
+				table.insert(parts, part)
+			end
 		end
+		teamPaintCache[model] = parts
+	end
+
+	for _, part in ipairs(teamPaintCache[model]) do
+		part.Color = teamColor
 	end
 end
 
@@ -359,12 +370,6 @@ function BuildingSpawner:spawn(player, name, cframe, isFree)
 		b:SetAttribute("BuildRequiredProgress", data.BuildRequirement or 100)
 		b:SetAttribute("IsUnderConstruction", true)
 		b:SetAttribute("FinalY", b:GetPivot().Position.Y)
-		for _, p in pairs(b:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Transparency = 0.8
-				p.CanCollide = false
-			end
-		end
 	end
 
 	local hum = b:FindFirstChild("Humanoid") or Instance.new("Humanoid", b)
@@ -372,11 +377,20 @@ function BuildingSpawner:spawn(player, name, cframe, isFree)
 	hum.Health = isInstant and data.Health or 100
 	hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
 
-	local hasSetCollisionGroup = _G.setCollisionGroup ~= nil
-	for _, p in ipairs(b:GetDescendants()) do
+	local descendants = b:GetDescendants()
+
+	if _G.setCollisionGroup then
+		_G.setCollisionGroup(b, "Buildings")
+	end
+
+	for _, p in ipairs(descendants) do
 		if p:IsA("BasePart") then
+			if not isInstant then
+				p.Transparency = 0.8
+				p.CanCollide = false
+			end
 			p.Anchored = true
-			if not hasSetCollisionGroup then
+			if not _G.setCollisionGroup then
 				p.CollisionGroup = "Default"
 			end
 		end
