@@ -6,6 +6,7 @@ Always read ARCHITECTURE.md and SYSTEM_INDEX.md before making changes.
 2. Keep the server authoritative. Client scripts may preview, visualize, or request actions, but the server must validate and mutate real gameplay state.
 3. Use `BuildingConfig.luau` as the single source of truth for unit stats, building stats, recruit lists, supply, energy, and upgrade paths.
 4. Preserve the current split between orchestration scripts and focused modules instead of collapsing behavior into one large script.
+5. **No Automated Testing:** The project developer prefers to perform testing entirely manually in Play mode. Do NOT suggest, write, or add automated testing frameworks, scripts, or unit tests under any circumstances.
 
 ## Match Flow Rules
 

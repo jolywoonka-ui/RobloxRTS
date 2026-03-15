@@ -23,13 +23,10 @@ local damageModuleScript: ModuleScript? = findModule(script.Parent, "DamageServi
 	or findModule(ServerStorage, "DamageService")
 	or findModule(ReplicatedStorage, "DamageService")
 
-local DamageService
-if damageModuleScript then
-	DamageService = require(damageModuleScript)
-else
-	warn("SuperWeaponManager: DamageService module not found, using shared fallback")
-	DamageService = require(script.Parent:WaitForChild("DamageServiceFallback", 5) or ReplicatedStorage:WaitForChild("DamageServiceFallback", 5))
+if not damageModuleScript then
+	error("SuperWeaponManager: DamageService module not found")
 end
+local DamageService = require(damageModuleScript)
 
 local WorldEffectEvent = ReplicatedStorage:WaitForChild("WorldEffectEvent")
 
