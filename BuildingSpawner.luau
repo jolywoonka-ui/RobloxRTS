@@ -39,7 +39,7 @@ local BLACKLISTED_MATERIALS = {
 local teamPaintCache = setmetatable({}, {__mode = "k"})
 
 -- ÃÂ¤Ã‘Æ’ÃÂ½ÃÂºÃ‘â€ ÃÂ¸Ã‘Â ÃÂ¿ÃÂ¾ÃÂºÃ‘â‚¬ÃÂ°Ã‘ÂÃÂºÃÂ¸ ÃÂ² Ã‘â€ ÃÂ²ÃÂµÃ‘â€š ÃÂºÃÂ¾ÃÂ¼ÃÂ°ÃÂ½ÃÂ´Ã‘â€¹
-local function applyTeamColor(model, player)
+local function applyTeamColor(model, player, baseParts)
 	if not player then return end
 	local teamColor = player:GetAttribute("TeamColor")
 	if not teamColor then return end
@@ -321,8 +321,15 @@ function BuildingSpawner:spawn(player, name, cframe, isFree)
 	local finalCF = CFrame.new(finalPos) * targetRot * modelRotation
 	b:PivotTo(finalCF)
 
+	local baseParts = {}
+	for _, p in pairs(b:GetDescendants()) do
+		if p:IsA("BasePart") then
+			table.insert(baseParts, p)
+		end
+	end
+
 	-- Apply team color
-	applyTeamColor(b, player)
+	applyTeamColor(b, player, baseParts)
 
 	b:SetAttribute("Owner", player.Name)
 	b:SetAttribute("Type", name)
