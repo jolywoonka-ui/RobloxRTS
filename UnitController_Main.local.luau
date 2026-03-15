@@ -938,26 +938,39 @@ local function createGhosts()
 		return 0.5
 	end
 
+	local ghostTemplates = {}
 	for _, unit in ipairs(selected) do
-		local ghost = unit:Clone()
-		ghost.Name = "Ghost_" .. unit.Name
-		for _, part in ipairs(ghost:GetDescendants()) do
-			if part:IsA("BasePart") then
-				part.Transparency = 0.7
-				part.Material = Enum.Material.Neon
-				part.Color = Color3.fromRGB(0, 200, 255)
-				part.CanCollide = false
-				part.Anchored = true
-				part.CanQuery = false
-			elseif part:IsA("Decal") or part:IsA("Texture") then
-				part.Transparency = 0.7
+		local template = ghostTemplates[unit.Name]
+		if not template then
+			template = unit:Clone()
+			template.Name = "Ghost_" .. unit.Name
+			for _, part in ipairs(template:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.Transparency = 0.7
+					part.Material = Enum.Material.Neon
+					part.Color = Color3.fromRGB(0, 200, 255)
+					part.CanCollide = false
+					part.Anchored = true
+					part.CanQuery = false
+				elseif part:IsA("Decal") or part:IsA("Texture") then
+					part.Transparency = 0.7
+				end
 			end
+			local hum = template:FindFirstChildOfClass("Humanoid")
+			if hum then hum:Destroy() end
+			ghostTemplates[unit.Name] = template
 		end
+
+		local ghost = template:Clone()
 		local hum = ghost:FindFirstChildOfClass("Humanoid")
 		if hum then hum:Destroy() end
 		ghost.Parent = ghostFolder
 		table.insert(ghostUnits, ghost)
 		ghostGroundOffsets[ghost] = computeGroundOffset(ghost)
+	end
+
+	for _, template in pairs(ghostTemplates) do
+		template:Destroy()
 	end
 end
 
