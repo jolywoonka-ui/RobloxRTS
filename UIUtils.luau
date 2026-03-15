@@ -1,8 +1,9 @@
--- UIUtils (ModuleScript, ReplicatedStorage)
-local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 
 local UIUtils = {}
+
+local player = Players.LocalPlayer
 
 function UIUtils.isInteractiveGuiObject(guiObject)
 	if not guiObject or not guiObject.Visible then
@@ -21,9 +22,6 @@ function UIUtils.isInteractiveGuiObject(guiObject)
 end
 
 function UIUtils.isPointerOverGui()
-	local player = Players.LocalPlayer
-	if not player then return false end
-
 	local playerGui = player:FindFirstChild("PlayerGui")
 	if not playerGui then
 		return false

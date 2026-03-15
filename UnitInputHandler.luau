@@ -29,6 +29,7 @@ local lastUnitClick = nil
 local lastUnitClickTime = 0
 local DOUBLE_CLICK_WINDOW = 0.35
 
+
 function InputHandler.setFormation(formation)
 	currentFormation = formation
 end
