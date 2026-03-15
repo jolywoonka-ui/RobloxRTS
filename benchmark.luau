@@ -1,36 +1,91 @@
-local module = require("./UnitAI.Builder.luau")
-
--- Create mock environment
-local timeSpent = 0
-local target = {
-    GetDescendants = function()
-        local parts = {}
-        for i = 1, 1000 do
-            table.insert(parts, { IsA = function(self, type) return type == "BasePart" end })
+local function benchmark()
+    -- Create a mock model with 100 parts
+    local function createMockUnit(name)
+        local c = {Name = name, parts = {}}
+        for i=1, 100 do
+            table.insert(c.parts, {
+                className = "BasePart",
+                IsA = function(self, className) return self.className == className end,
+                Transparency = 0,
+                Material = "Plastic",
+                Color = "White",
+                CanCollide = true,
+                Anchored = false,
+                CanQuery = true
+            })
         end
-        return parts
-    end,
-    GetAttribute = function(self, attr)
-        if attr == "IsUnderConstruction" then return true end
-        if attr == "Health" then return 100 end
-        if attr == "Owner" then return "Player1" end
-        if attr == "Progress" then return 99 end
-        if attr == "BuildRequiredProgress" then return 100 end
-        if attr == "MaxHealth" then return 100 end
-        if attr == "Type" then return "Barracks" end
-        return nil
-    end,
-    SetAttribute = function(self, attr, val) end,
-    FindFirstChild = function(self, name) return nil end,
-}
-
-local builder = {
-    GetAttribute = function(self, attr)
-        if attr == "Range" then return 30 end
-        if attr == "BuildPower" then return 5 end
-        if attr == "Owner" then return "Player1" end
-        return nil
+        function c:GetDescendants()
+            return self.parts
+        end
+        function c:FindFirstChildOfClass()
+            return nil
+        end
+        function c:Clone()
+            return createMockUnit(self.Name)
+        end
+        function c:Destroy()
+        end
+        return c
     end
-}
 
--- etc...
+    local selected = {}
+    for i=1, 1000 do
+        table.insert(selected, createMockUnit("TestUnit"))
+    end
+
+    local start = os.clock()
+    for _, unit in ipairs(selected) do
+        local ghost = unit:Clone()
+        ghost.Name = "Ghost_" .. unit.Name
+        for _, part in ipairs(ghost:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Transparency = 0.7
+                part.Material = "Neon"
+                part.Color = "Blue"
+                part.CanCollide = false
+                part.Anchored = true
+                part.CanQuery = false
+            elseif part:IsA("Decal") or part:IsA("Texture") then
+                part.Transparency = 0.7
+            end
+        end
+        local hum = ghost:FindFirstChildOfClass("Humanoid")
+        if hum then hum:Destroy() end
+    end
+    print("Baseline:", os.clock() - start)
+
+    local start2 = os.clock()
+    local ghostTemplates = {}
+    for _, unit in ipairs(selected) do
+        local template = ghostTemplates[unit.Name]
+        if not template then
+            template = unit:Clone()
+            template.Name = "Ghost_" .. unit.Name
+            for _, part in ipairs(template:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.Transparency = 0.7
+                    part.Material = "Neon"
+                    part.Color = "Blue"
+                    part.CanCollide = false
+                    part.Anchored = true
+                    part.CanQuery = false
+                elseif part:IsA("Decal") or part:IsA("Texture") then
+                    part.Transparency = 0.7
+                end
+            end
+            local hum = template:FindFirstChildOfClass("Humanoid")
+            if hum then hum:Destroy() end
+            ghostTemplates[unit.Name] = template
+        end
+
+        local ghost = template:Clone()
+        local hum = ghost:FindFirstChildOfClass("Humanoid")
+        if hum then hum:Destroy() end
+    end
+    for _, t in pairs(ghostTemplates) do
+        t:Destroy()
+    end
+    print("Optimized:", os.clock() - start2)
+end
+
+benchmark()
