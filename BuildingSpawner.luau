@@ -37,13 +37,22 @@ local BLACKLISTED_MATERIALS = {
 }
 
 -- ÃÂ¤Ã‘Æ’ÃÂ½ÃÂºÃ‘â€ ÃÂ¸Ã‘Â ÃÂ¿ÃÂ¾ÃÂºÃ‘â‚¬ÃÂ°Ã‘ÂÃÂºÃÂ¸ ÃÂ² Ã‘â€ ÃÂ²ÃÂµÃ‘â€š ÃÂºÃÂ¾ÃÂ¼ÃÂ°ÃÂ½ÃÂ´Ã‘â€¹
-local function applyTeamColor(model, player)
+local function applyTeamColor(model, player, baseParts)
 	if not player then return end
 	local teamColor = player:GetAttribute("TeamColor")
 	if not teamColor then return end
-	for _, part in pairs(model:GetDescendants()) do
-		if part:IsA("BasePart") and part.Name == "TeamPaint" then
-			part.Color = teamColor
+
+	if baseParts then
+		for _, part in ipairs(baseParts) do
+			if part.Name == "TeamPaint" then
+				part.Color = teamColor
+			end
+		end
+	else
+		for _, part in pairs(model:GetDescendants()) do
+			if part:IsA("BasePart") and part.Name == "TeamPaint" then
+				part.Color = teamColor
+			end
 		end
 	end
 end
@@ -310,8 +319,15 @@ function BuildingSpawner:spawn(player, name, cframe, isFree)
 	local finalCF = CFrame.new(finalPos) * targetRot * modelRotation
 	b:PivotTo(finalCF)
 
+	local baseParts = {}
+	for _, p in pairs(b:GetDescendants()) do
+		if p:IsA("BasePart") then
+			table.insert(baseParts, p)
+		end
+	end
+
 	-- Apply team color
-	applyTeamColor(b, player)
+	applyTeamColor(b, player, baseParts)
 
 	b:SetAttribute("Owner", player.Name)
 	b:SetAttribute("Type", name)
@@ -359,11 +375,9 @@ function BuildingSpawner:spawn(player, name, cframe, isFree)
 		b:SetAttribute("BuildRequiredProgress", data.BuildRequirement or 100)
 		b:SetAttribute("IsUnderConstruction", true)
 		b:SetAttribute("FinalY", b:GetPivot().Position.Y)
-		for _, p in pairs(b:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Transparency = 0.8
-				p.CanCollide = false
-			end
+		for _, p in ipairs(baseParts) do
+			p.Transparency = 0.8
+			p.CanCollide = false
 		end
 	end
 
@@ -372,14 +386,12 @@ function BuildingSpawner:spawn(player, name, cframe, isFree)
 	hum.Health = isInstant and data.Health or 100
 	hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
 
-	for _, p in pairs(b:GetDescendants()) do
-		if p:IsA("BasePart") then
-			p.Anchored = true
-			if _G.setCollisionGroup then
-				_G.setCollisionGroup(b, "Buildings")
-			else
-				p.CollisionGroup = "Default"
-			end
+	for _, p in ipairs(baseParts) do
+		p.Anchored = true
+		if _G.setCollisionGroup then
+			_G.setCollisionGroup(b, "Buildings")
+		else
+			p.CollisionGroup = "Default"
 		end
 	end
 
