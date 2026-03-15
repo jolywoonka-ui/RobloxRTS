@@ -18,7 +18,6 @@ local lastBuildingClick = nil
 local lastBuildingClickTime = 0
 local DOUBLE_CLICK_WINDOW = 0.35
 
-
 local function isCtrlDown()
 	return UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
 end
