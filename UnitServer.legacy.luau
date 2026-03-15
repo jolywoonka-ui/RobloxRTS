@@ -31,12 +31,13 @@ end
 
 -- Connect UnitEvent for training actions
 UnitEvent.OnServerEvent:Connect(function(player, action, building, extra)
+	if type(action) ~= "string" then return end
 	if action == "Train" then
-		if not building or building.Parent == nil then return end
+		if typeof(building) ~= "Instance" or building.Parent == nil then return end
 		if building:GetAttribute("Owner") ~= player.Name then return end
 		UnitQueue.addToQueue(player, building, extra)
 	elseif action == "CancelTrain" then
-		if not building or building.Parent == nil then return end
+		if typeof(building) ~= "Instance" or building.Parent == nil then return end
 		if building:GetAttribute("Owner") ~= player.Name then return end
 		UnitQueue.cancelTrain(player, building, extra)
 	end
@@ -54,6 +55,8 @@ end)
 -- Connect transport loading
 if LoadTransport then
 	LoadTransport.OnServerEvent:Connect(function(player, transport, action)
+		if typeof(transport) ~= "Instance" then return end
+		if type(action) ~= "string" and action ~= nil then return end
 		UnitTransport.toggle(transport, player, action)
 	end)
 end

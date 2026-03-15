@@ -88,7 +88,10 @@ local function getFormationPositions(targetPos, count, formation, forward, right
 end
 
 function module.handleMoveCommand(player, unitList, targetPos, isQueued, formation, moveCommand)
-    if not unitList then
+    if type(unitList) ~= "table" then
+        return
+    end
+    if #unitList > 100 then
         return
     end
 
@@ -97,7 +100,7 @@ function module.handleMoveCommand(player, unitList, targetPos, isQueued, formati
 
     if count <= 1 or formation == "none" then
         for _, unit in ipairs(unitList) do
-            if unit and unit.Parent and unit:GetAttribute("Owner") == player.Name then
+            if typeof(unit) == "Instance" and unit.Parent and unit:GetAttribute("Owner") == player.Name then
                 local state = State.getState(unit)
                 local pos = targetPos
 
@@ -130,7 +133,7 @@ function module.handleMoveCommand(player, unitList, targetPos, isQueued, formati
         local positions = getFormationPositions(targetPos, count, formation, forward, right)
 
         for i, unit in ipairs(unitList) do
-            if unit and unit.Parent and unit:GetAttribute("Owner") == player.Name then
+            if typeof(unit) == "Instance" and unit.Parent and unit:GetAttribute("Owner") == player.Name then
                 local state = State.getState(unit)
                 local pos = positions[i] or targetPos
 

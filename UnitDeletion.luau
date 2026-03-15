@@ -39,11 +39,13 @@ function UnitDeletion.deleteUnits(player, units)
 	print("DeleteUnit called by", player.Name, "units:", units)
 	if not units then return end
 	local unitList = type(units) == "table" and units or {units}
+	if #unitList > 100 then return end
+
 	local ps = player:FindFirstChild("PlayerStats")
 	local currentUnits = ps and ps:FindFirstChild("CurrentUnits")
 
 	for _, unit in ipairs(unitList) do
-		if unit and unit.Parent and unit:GetAttribute("Owner") == player.Name then
+		if typeof(unit) == "Instance" and unit.Parent and unit:GetAttribute("Owner") == player.Name then
 			local supply = unit:GetAttribute("Supply") or 1
 
 			local isTransport = (unit:GetAttribute("Capacity") ~= nil) and ((unit:GetAttribute("Damage") or 0) == 0)
