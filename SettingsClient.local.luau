@@ -91,34 +91,6 @@ local function saveKeybindSettings()
 	})
 end
 
-local function createLabel(parent, text, size, position, font, textSize, color, align)
-	local label = Instance.new("TextLabel")
-	label.Size = size
-	label.Position = position
-	label.BackgroundTransparency = 1
-	label.Text = text or ""
-	label.TextColor3 = color or THEME.Text
-	label.TextTransparency = 0
-	label.Font = font or THEME.FontBody
-	label.TextSize = textSize or 14
-	label.TextXAlignment = align or Enum.TextXAlignment.Left
-	label.Parent = parent
-	return label
-end
-
-local function createButton(parent, text, size, position, kind)
-	local button = Instance.new("TextButton")
-	button.Size = size
-	button.Position = position
-	button.Text = text
-	button.Parent = parent
-	UIStyle.applyButton(button, kind)
-	button.Font = THEME.FontBody
-	button.TextSize = 13
-	button.TextTransparency = 0
-	return button
-end
-
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SettingsUI"
 screenGui.ResetOnSpawn = false
@@ -127,8 +99,8 @@ screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.DisplayOrder = 150
 screenGui.Parent = playerGui
 
-local settingsBtn = createButton(screenGui, "SYSTEM", UDim2.new(0, 70, 0, 28), UDim2.new(1, -82, 0, 14), "ghost")
-local faqBtn = createButton(screenGui, "MANUAL", UDim2.new(0, 70, 0, 28), UDim2.new(1, -158, 0, 14), "ghost")
+local settingsBtn = UIStyle.createButton(screenGui, "SYSTEM", UDim2.new(0, 70, 0, 28), UDim2.new(1, -82, 0, 14), "ghost")
+local faqBtn = UIStyle.createButton(screenGui, "MANUAL", UDim2.new(0, 70, 0, 28), UDim2.new(1, -158, 0, 14), "ghost")
 
 local overlay = Instance.new("TextButton")
 overlay.Size = UDim2.new(1, 0, 1, 0)
@@ -156,8 +128,8 @@ titleBar.Position = UDim2.new(0, 10, 0, 10)
 titleBar.BackgroundTransparency = 1
 titleBar.Parent = desk
 
-local deskTitle = createLabel(titleBar, "SYSTEM", UDim2.new(1, -90, 1, 0), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 24, THEME.Text)
-local closeBtn = createButton(titleBar, "CLOSE", UDim2.new(0, 82, 0, 26), UDim2.new(1, -82, 0, 3), "secondary")
+local deskTitle = UIStyle.createLabel(titleBar, "SYSTEM", UDim2.new(1, -90, 1, 0), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 24, THEME.Text)
+local closeBtn = UIStyle.createButton(titleBar, "CLOSE", UDim2.new(0, 82, 0, 26), UDim2.new(1, -82, 0, 3), "secondary")
 
 local navRail = Instance.new("Frame")
 navRail.Size = UDim2.new(1, -20, 0, 32)
@@ -207,7 +179,7 @@ local function setNavActive(name)
 end
 
 local function addNavButton(name, caption)
-	local button = createButton(navRail, caption, UDim2.new(0, 120, 1, 0), UDim2.new(), "secondary")
+	local button = UIStyle.createButton(navRail, caption, UDim2.new(0, 120, 1, 0), UDim2.new(), "secondary")
 	button.MouseButton1Click:Connect(function()
 		setNavActive(name)
 	end)
@@ -224,13 +196,13 @@ local function createSectionCard(parent, titleText, bodyText, size, position)
 	card.BorderSizePixel = 0
 	card.Parent = parent
 	UIStyle.applyPanel(card, "panel")
-	createLabel(card, titleText, UDim2.new(1, -16, 0, 18), UDim2.new(0, 8, 0, 10), THEME.FontMain, 12, THEME.SubText)
-	createLabel(card, bodyText, UDim2.new(1, -16, 0, 20), UDim2.new(0, 8, 0, 30), THEME.FontHeader, 18, THEME.Text)
+	UIStyle.createLabel(card, titleText, UDim2.new(1, -16, 0, 18), UDim2.new(0, 8, 0, 10), THEME.FontMain, 12, THEME.SubText)
+	UIStyle.createLabel(card, bodyText, UDim2.new(1, -16, 0, 20), UDim2.new(0, 8, 0, 30), THEME.FontHeader, 18, THEME.Text)
 	return card
 end
 
 local function createRowButton(row, settingName)
-	local button = createButton(row, KeybindConfig[settingName], UDim2.new(0, 92, 0, 26), UDim2.new(1, -100, 0.5, -13), "secondary")
+	local button = UIStyle.createButton(row, KeybindConfig[settingName], UDim2.new(0, 92, 0, 26), UDim2.new(1, -100, 0.5, -13), "secondary")
 	button.MouseButton1Click:Connect(function()
 		button.Text = "..."
 		local connection
@@ -253,7 +225,7 @@ local function createRowButton(row, settingName)
 end
 
 local function createToggleButton(row, state, callback)
-	local button = createButton(row, state and "ON" or "OFF", UDim2.new(0, 92, 0, 26), UDim2.new(1, -100, 0.5, -13), state and "success" or "danger")
+	local button = UIStyle.createButton(row, state and "ON" or "OFF", UDim2.new(0, 92, 0, 26), UDim2.new(1, -100, 0.5, -13), state and "success" or "danger")
 	button.MouseButton1Click:Connect(function()
 		state = not state
 		button.Text = state and "ON" or "OFF"
@@ -274,8 +246,8 @@ local function buildSettingsPage()
 		row.LayoutOrder = layoutOrder
 		row.Parent = parent
 
-		createLabel(row, titleText, UDim2.new(0.62, -10, 0, 18), UDim2.new(0, 0, 0, 6), THEME.FontMain, 14, THEME.Text)
-		createLabel(row, subtitleText, UDim2.new(0.62, -10, 0, 16), UDim2.new(0, 0, 0, 28), THEME.FontBody, 12, THEME.SubText)
+		UIStyle.createLabel(row, titleText, UDim2.new(0.62, -10, 0, 18), UDim2.new(0, 0, 0, 6), THEME.FontMain, 14, THEME.Text)
+		UIStyle.createLabel(row, subtitleText, UDim2.new(0.62, -10, 0, 16), UDim2.new(0, 0, 0, 28), THEME.FontBody, 12, THEME.SubText)
 		UIStyle.createDivider(row, 53, 1)
 		return row
 	end
@@ -316,16 +288,16 @@ local function buildSettingsPage()
 	inputHeader.BackgroundTransparency = 1
 	inputHeader.LayoutOrder = 0
 	inputHeader.Parent = inputList
-	createLabel(inputHeader, "INPUT", UDim2.new(1, 0, 0, 14), UDim2.new(0, 0, 0, 0), THEME.FontMain, 12, THEME.SubText)
-	createLabel(inputHeader, "Control bindings", UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 0, 20), THEME.FontBody, 18, THEME.Text)
+	UIStyle.createLabel(inputHeader, "INPUT", UDim2.new(1, 0, 0, 14), UDim2.new(0, 0, 0, 0), THEME.FontMain, 12, THEME.SubText)
+	UIStyle.createLabel(inputHeader, "Control bindings", UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 0, 20), THEME.FontBody, 18, THEME.Text)
 
 	local visualsHeader = Instance.new("Frame")
 	visualsHeader.Size = UDim2.new(1, 0, 0, 46)
 	visualsHeader.BackgroundTransparency = 1
 	visualsHeader.LayoutOrder = 0
 	visualsHeader.Parent = visualsList
-	createLabel(visualsHeader, "DISPLAY", UDim2.new(1, 0, 0, 14), UDim2.new(0, 0, 0, 0), THEME.FontMain, 12, THEME.SubText)
-	createLabel(visualsHeader, "Battlefield helpers", UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 0, 20), THEME.FontBody, 18, THEME.Text)
+	UIStyle.createLabel(visualsHeader, "DISPLAY", UDim2.new(1, 0, 0, 14), UDim2.new(0, 0, 0, 0), THEME.FontMain, 12, THEME.SubText)
+	UIStyle.createLabel(visualsHeader, "Battlefield helpers", UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 0, 20), THEME.FontBody, 18, THEME.Text)
 
 	local teleportRow = createSettingRow(inputList, "Teleport Key", "Quick reposition order", 1)
 	createRowButton(teleportRow, "TeleportKey")
@@ -429,16 +401,16 @@ local function buildManualPage()
 		end
 	end
 
-	createLabel(contentPanel, "FIELD MANUAL", UDim2.new(1, -24, 0, 16), UDim2.new(0, 12, 0, 12), THEME.FontMain, 12, THEME.SubText)
-	activeManualTitle = createLabel(contentPanel, "", UDim2.new(1, -24, 0, 28), UDim2.new(0, 12, 0, 34), THEME.FontHeader, 22, THEME.Text)
-	activeManualBody = createLabel(contentPanel, "", UDim2.new(1, -24, 1, -88), UDim2.new(0, 12, 0, 76), THEME.FontBody, 16, THEME.Text)
+	UIStyle.createLabel(contentPanel, "FIELD MANUAL", UDim2.new(1, -24, 0, 16), UDim2.new(0, 12, 0, 12), THEME.FontMain, 12, THEME.SubText)
+	activeManualTitle = UIStyle.createLabel(contentPanel, "", UDim2.new(1, -24, 0, 28), UDim2.new(0, 12, 0, 34), THEME.FontHeader, 22, THEME.Text)
+	activeManualBody = UIStyle.createLabel(contentPanel, "", UDim2.new(1, -24, 1, -88), UDim2.new(0, 12, 0, 76), THEME.FontBody, 16, THEME.Text)
 	activeManualBody.TextWrapped = true
 	activeManualBody.TextYAlignment = Enum.TextYAlignment.Top
 
 	for index, section in ipairs(MANUAL_SECTIONS) do
 		manualPages[section.Title] = section
 
-		local button = createButton(categoryRail, string.upper(section.Title), UDim2.new(1, 0, 0, 32), UDim2.new(), "secondary")
+		local button = UIStyle.createButton(categoryRail, string.upper(section.Title), UDim2.new(1, 0, 0, 32), UDim2.new(), "secondary")
 		button.LayoutOrder = index
 		button.MouseButton1Click:Connect(function()
 			setManualSection(section.Title)
@@ -497,12 +469,12 @@ tipPopup.BorderSizePixel = 0
 tipPopup.Parent = screenGui
 UIStyle.applyPanel(tipPopup, "background")
 
-createLabel(tipPopup, "FIELD MANUAL", UDim2.new(1, -24, 0, 16), UDim2.new(0, 12, 0, 10), THEME.FontMain, 12, THEME.SubText)
-local promptText = createLabel(tipPopup, "Open MANUAL in the top-right corner for the controls and game systems.", UDim2.new(1, -24, 0, 34), UDim2.new(0, 12, 0, 28), THEME.FontBody, 13, THEME.Text)
+UIStyle.createLabel(tipPopup, "FIELD MANUAL", UDim2.new(1, -24, 0, 16), UDim2.new(0, 12, 0, 10), THEME.FontMain, 12, THEME.SubText)
+local promptText = UIStyle.createLabel(tipPopup, "Open MANUAL in the top-right corner for the controls and game systems.", UDim2.new(1, -24, 0, 34), UDim2.new(0, 12, 0, 28), THEME.FontBody, 13, THEME.Text)
 promptText.TextWrapped = true
 
-local openManualBtn = createButton(tipPopup, "OPEN", UDim2.new(0, 78, 0, 24), UDim2.new(0, 12, 1, -34), "primary")
-local dismissPromptBtn = createButton(tipPopup, "DISMISS", UDim2.new(0, 92, 0, 24), UDim2.new(1, -104, 1, -34), "secondary")
+local openManualBtn = UIStyle.createButton(tipPopup, "OPEN", UDim2.new(0, 78, 0, 24), UDim2.new(0, 12, 1, -34), "primary")
+local dismissPromptBtn = UIStyle.createButton(tipPopup, "DISMISS", UDim2.new(0, 92, 0, 24), UDim2.new(1, -104, 1, -34), "secondary")
 
 local function hidePrompt()
 	if not tipPopup or not tipPopup.Parent then

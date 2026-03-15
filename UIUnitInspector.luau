@@ -22,20 +22,6 @@ local currentUnits = {}
 local currentUnit
 local connections = {}
 
-local function createLabel(parent, text, size, position, font, textSize, color, align)
-	local label = Instance.new("TextLabel")
-	label.Size = size
-	label.Position = position
-	label.BackgroundTransparency = 1
-	label.Text = text or ""
-	label.TextColor3 = color or THEME.Text
-	label.Font = font or THEME.FontBody
-	label.TextSize = textSize or 14
-	label.TextXAlignment = align or Enum.TextXAlignment.Left
-	label.Parent = parent
-	return label
-end
-
 local function getUnitTypeName(unit)
 	return tostring(unit and (unit:GetAttribute("UnitType") or unit:GetAttribute("Type") or unit.Name) or "UNIT")
 end
@@ -169,8 +155,8 @@ function UIUnitInspector.init(mainScreen, gameFrame)
 	inspectorFrame.Parent = gameFrame
 	UIStyle.applyPanel(inspectorFrame, "background")
 
-	titleLabel = createLabel(inspectorFrame, "UNIT", UDim2.new(1, -20, 0, 22), UDim2.new(0, 10, 0, 10), THEME.FontHeader, 18, THEME.Text)
-	subtitleLabel = createLabel(inspectorFrame, "", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 34), THEME.FontBody, 11, THEME.SubText)
+	titleLabel = UIStyle.createLabel(inspectorFrame, "UNIT", UDim2.new(1, -20, 0, 22), UDim2.new(0, 10, 0, 10), THEME.FontHeader, 18, THEME.Text)
+	subtitleLabel = UIStyle.createLabel(inspectorFrame, "", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 34), THEME.FontBody, 11, THEME.SubText)
 
 	local healthBack = Instance.new("Frame")
 	healthBack.Size = UDim2.new(1, -20, 0, 12)
@@ -188,9 +174,9 @@ function UIUnitInspector.init(mainScreen, gameFrame)
 	healthFill.Parent = healthBack
 	UIStyle.addCorner(healthFill, UDim.new(0, 2))
 
-	healthText = createLabel(inspectorFrame, "100 / 100", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 76), THEME.FontBody, 11, THEME.SubText, Enum.TextXAlignment.Right)
+	healthText = UIStyle.createLabel(inspectorFrame, "100 / 100", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 76), THEME.FontBody, 11, THEME.SubText, Enum.TextXAlignment.Right)
 
-	metaLabel = createLabel(inspectorFrame, "Selection summary", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 96), THEME.FontBody, 11, THEME.SubText)
+	metaLabel = UIStyle.createLabel(inspectorFrame, "Selection summary", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 96), THEME.FontBody, 11, THEME.SubText)
 	metaLabel.Visible = false
 
 	summaryFrame = Instance.new("Frame")
@@ -201,7 +187,7 @@ function UIUnitInspector.init(mainScreen, gameFrame)
 	summaryFrame.Parent = inspectorFrame
 	UIStyle.applyPanel(summaryFrame, "panelAlt")
 
-	summaryLabel = createLabel(summaryFrame, "", UDim2.new(1, -12, 1, 0), UDim2.new(0, 6, 0, 0), THEME.FontBody, 12, THEME.Text)
+	summaryLabel = UIStyle.createLabel(summaryFrame, "", UDim2.new(1, -12, 1, 0), UDim2.new(0, 6, 0, 0), THEME.FontBody, 12, THEME.Text)
 	summaryLabel.TextWrapped = true
 
 	deleteBtn = Instance.new("TextButton")

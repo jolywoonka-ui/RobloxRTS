@@ -81,34 +81,6 @@ local function applyFrameWidth()
 	mainFrame.Size = UDim2.new(0, math.max(contentWidth, 176), 0, height)
 end
 
-local function createLabel(parent, text, size, position, font, textSize, color, align)
-	local label = Instance.new("TextLabel")
-	label.Size = size
-	label.Position = position
-	label.BackgroundTransparency = 1
-	label.Text = text or ""
-	label.TextColor3 = color or THEME.Text
-	label.TextTransparency = 0
-	label.Font = font or THEME.FontBody
-	label.TextSize = textSize or 14
-	label.TextXAlignment = align or Enum.TextXAlignment.Left
-	label.Parent = parent
-	return label
-end
-
-local function createButton(parent, text, size, position, kind)
-	local button = Instance.new("TextButton")
-	button.Size = size
-	button.Position = position
-	button.Text = text
-	button.Parent = parent
-	UIStyle.applyButton(button, kind)
-	button.Font = THEME.FontBody
-	button.TextSize = 12
-	button.TextTransparency = 0
-	return button
-end
-
 local function getUnitDisplayName(unit)
 	return tostring(unit and (unit:GetAttribute("UnitType") or unit:GetAttribute("Type") or unit.Name) or "UNIT")
 end
@@ -222,8 +194,8 @@ local function createUnitRow(parent, unit, index)
 	row.BorderSizePixel = 0
 	row.Parent = parent
 
-	createLabel(row, getUnitDisplayName(unit), UDim2.new(0.62, -8, 0, 12), UDim2.new(0, 0, 0, 0), THEME.FontBody, 10, THEME.Text)
-	createLabel(row, string.format("%d/%d", math.floor(health + 0.5), math.floor(maxHealth + 0.5)), UDim2.new(0.38, 0, 0, 12), UDim2.new(0.62, 0, 0, 0), THEME.FontBody, 9, THEME.SubText, Enum.TextXAlignment.Right)
+	UIStyle.createLabel(row, getUnitDisplayName(unit), UDim2.new(0.62, -8, 0, 12), UDim2.new(0, 0, 0, 0), THEME.FontBody, 10, THEME.Text)
+	UIStyle.createLabel(row, string.format("%d/%d", math.floor(health + 0.5), math.floor(maxHealth + 0.5)), UDim2.new(0.38, 0, 0, 12), UDim2.new(0.62, 0, 0, 0), THEME.FontBody, 9, THEME.SubText, Enum.TextXAlignment.Right)
 
 	local hpBack = Instance.new("Frame")
 	hpBack.Size = UDim2.new(1, 0, 0, 6)
@@ -291,7 +263,7 @@ local function buildSquadCard(parent, squad, metrics, layoutOrder)
 		setSelectedSquad(squad, true)
 	end)
 
-	createLabel(card, string.format("%d / %d units", #squad.Units, squad.Limit), UDim2.new(1, -16, 0, 14), UDim2.new(0, 8, 0, 26), THEME.FontBody, 12, THEME.SubText)
+	UIStyle.createLabel(card, string.format("%d / %d units", #squad.Units, squad.Limit), UDim2.new(1, -16, 0, 14), UDim2.new(0, 8, 0, 26), THEME.FontBody, 12, THEME.SubText)
 
 	local unitList = Instance.new("Frame")
 	unitList.Size = UDim2.new(1, -16, 0, 102)
@@ -310,7 +282,7 @@ local function buildSquadCard(parent, squad, metrics, layoutOrder)
 	squadSelectArea.Parent = card
 
 	if #squad.Units == 0 then
-		createLabel(unitList, "No units assigned", UDim2.new(1, 0, 0, 16), UDim2.new(), THEME.FontBody, 10, THEME.SubText)
+		UIStyle.createLabel(unitList, "No units assigned", UDim2.new(1, 0, 0, 16), UDim2.new(), THEME.FontBody, 10, THEME.SubText)
 	else
 		for unitIndex, unit in ipairs(squad.Units) do
 			if unit and unit.Parent then
@@ -319,8 +291,8 @@ local function buildSquadCard(parent, squad, metrics, layoutOrder)
 		end
 	end
 
-	local assignBtn = createButton(card, "ASSIGN", UDim2.new(0.42, 0, 0, 22), UDim2.new(0, 8, 1, -30), "secondary")
-	local disbandBtn = createButton(card, "DISBAND", UDim2.new(0.42, 0, 0, 22), UDim2.new(0.58, -8, 1, -30), "danger")
+	local assignBtn = UIStyle.createButton(card, "ASSIGN", UDim2.new(0.42, 0, 0, 22), UDim2.new(0, 8, 1, -30), "secondary")
+	local disbandBtn = UIStyle.createButton(card, "DISBAND", UDim2.new(0.42, 0, 0, 22), UDim2.new(0.58, -8, 1, -30), "danger")
 	assignBtn.TextSize = 12
 	disbandBtn.TextSize = 12
 
@@ -352,7 +324,7 @@ local function buildCreateCard(parent, metrics, alignRight, layoutOrder)
 	createCard.Parent = parent
 
 	local createPosition = alignRight and UDim2.new(1, -50, 0.5, -21) or UDim2.new(0.5, -21, 0.5, -21)
-	local createBtn = createButton(createCard, "+", UDim2.new(0, 42, 0, 42), createPosition, "secondary")
+	local createBtn = UIStyle.createButton(createCard, "+", UDim2.new(0, 42, 0, 42), createPosition, "secondary")
 	createBtn.TextSize = 24
 	createBtn.MouseButton1Down:Connect(function()
 		if callbacks.onCreateSquad then
@@ -444,10 +416,10 @@ local function createSquadUI()
 	UIStyle.applyPanel(pagerFrame, "card")
 	UIStyle.addShadow(pagerFrame, 0.84)
 
-	pageLabel = createLabel(pagerFrame, "1 / 1", UDim2.new(0, 56, 1, 0), UDim2.new(0.5, -28, 0, 0), THEME.FontBody, 11, THEME.SubText, Enum.TextXAlignment.Center)
-	prevBtn = createButton(pagerFrame, "<", UDim2.new(0, 24, 0, 20), UDim2.new(0, 8, 0, 3), "ghost")
-	nextBtn = createButton(pagerFrame, ">", UDim2.new(0, 24, 0, 20), UDim2.new(1, -56, 0, 3), "ghost")
-	collapseBtn = createButton(pagerFrame, "-", UDim2.new(0, 24, 0, 20), UDim2.new(1, -28, 0, 3), "ghost")
+	pageLabel = UIStyle.createLabel(pagerFrame, "1 / 1", UDim2.new(0, 56, 1, 0), UDim2.new(0.5, -28, 0, 0), THEME.FontBody, 11, THEME.SubText, Enum.TextXAlignment.Center)
+	prevBtn = UIStyle.createButton(pagerFrame, "<", UDim2.new(0, 24, 0, 20), UDim2.new(0, 8, 0, 3), "ghost")
+	nextBtn = UIStyle.createButton(pagerFrame, ">", UDim2.new(0, 24, 0, 20), UDim2.new(1, -56, 0, 3), "ghost")
+	collapseBtn = UIStyle.createButton(pagerFrame, "-", UDim2.new(0, 24, 0, 20), UDim2.new(1, -28, 0, 3), "ghost")
 
 	cardsHolder = Instance.new("Frame")
 	cardsHolder.Size = UDim2.new(1, 0, 1, -34)
@@ -456,7 +428,7 @@ local function createSquadUI()
 	cardsHolder.Active = false
 	cardsHolder.Parent = mainFrame
 
-	reopenBtn = createButton(squadScreen, "SQUADS", UDim2.new(0, 84, 0, 24), UDim2.new(0.5, -42, 1, -28), "secondary")
+	reopenBtn = UIStyle.createButton(squadScreen, "SQUADS", UDim2.new(0, 84, 0, 24), UDim2.new(0.5, -42, 1, -28), "secondary")
 	reopenBtn.Visible = false
 	reopenBtn.MouseButton1Click:Connect(function()
 		collapsed = false
