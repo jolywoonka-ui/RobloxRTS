@@ -412,39 +412,52 @@ local function findEffectTemplate(name)
 	return effectsFolder and effectsFolder:FindFirstChild(name)
 end
 
-local function applyTeamPaintColor(target, teamColor)
-	if typeof(teamColor) ~= "Color3" or not target then
-		return
+local cachedProjectileTemplates = {}
+
+local function getProcessedProjectileTemplate(templateName, teamColor)
+	local cacheKey = tostring(templateName) .. "_" .. tostring(teamColor)
+	if cachedProjectileTemplates[cacheKey] then
+		return cachedProjectileTemplates[cacheKey]:Clone()
 	end
-	if target:IsA("BasePart") and target.Name == "TeamPaint" then
-		target.Color = teamColor
+
+	local baseTemplate = findEffectTemplate(templateName)
+	if not baseTemplate then
+		return nil
 	end
-	for _, inst in ipairs(target:GetDescendants()) do
-		if inst:IsA("BasePart") and inst.Name == "TeamPaint" then
-			inst.Color = teamColor
+
+	local clone = baseTemplate:Clone()
+
+	if typeof(teamColor) == "Color3" and clone:IsA("BasePart") and clone.Name == "TeamPaint" then
+		clone.Color = teamColor
+	end
+
+	for _, inst in ipairs(clone:GetDescendants()) do
+		if inst:IsA("BasePart") then
+			inst.Anchored = true
+			inst.CanCollide = false
+			inst.CanQuery = false
+			if inst.Name == "TeamPaint" and typeof(teamColor) == "Color3" then
+				inst.Color = teamColor
+			end
+		elseif inst:IsA("Script") or inst:IsA("LocalScript") then
+			inst:Destroy()
 		end
 	end
+
+	cachedProjectileTemplates[cacheKey] = clone
+	return clone:Clone()
 end
 
 local function createProjectileVisual(templateName, color, size, options)
-	local template = templateName and findEffectTemplate(templateName)
-	if template then
-		local clone = template:Clone()
-		for _, inst in ipairs(clone:GetDescendants()) do
-			if inst:IsA("BasePart") then
-				inst.Anchored = true
-				inst.CanCollide = false
-				inst.CanQuery = false
-			elseif inst:IsA("Script") or inst:IsA("LocalScript") then
-				inst:Destroy()
+	if templateName then
+		local clone = getProcessedProjectileTemplate(templateName, options and options.teamColor)
+		if clone then
+			if clone:IsA("Model") then
+				visualRotationOffsets[clone] = clone:GetPivot().Rotation
 			end
+			clone.Parent = visualsFolder
+			return clone
 		end
-		applyTeamPaintColor(clone, options and options.teamColor)
-		if clone:IsA("Model") then
-			visualRotationOffsets[clone] = clone:GetPivot().Rotation
-		end
-		clone.Parent = visualsFolder
-		return clone
 	end
 	return makeTrailPart(color, size)
 end

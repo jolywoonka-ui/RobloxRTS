@@ -196,6 +196,7 @@ RoundStartEvent.Event:Connect(function(map)
 end)
 
 BuildEvent.OnServerEvent:Connect(function(player, action, name, cframe)
+	if type(name) ~= "string" or typeof(cframe) ~= "CFrame" then return end
 	if action == "Build" then
 		local result = buildingSpawner:spawn(player, name, cframe, false)
 		if result == "Success" then
@@ -223,6 +224,7 @@ ForceBuildEvent.Event:Connect(function(player, name, cframe)
 end)
 
 SellEvent.OnServerEvent:Connect(function(player, building)
+	if typeof(building) ~= "Instance" then return end
 	sellHandler:sell(player, building)
 end)
 
@@ -238,9 +240,11 @@ UpgradeEvent.OnServerEvent:Connect(function(player, buildingOrList)
 	end
 
 	if typeof(buildingOrList) == "table" then
+		if #buildingOrList > 100 then return end
 		local anySuccess = false
 		local lastError = nil
 		for _, building in ipairs(buildingOrList) do
+			if typeof(building) ~= "Instance" then continue end
 			local ok, result = tryUpgradeOne(building)
 			if ok then
 				anySuccess = true
@@ -261,16 +265,19 @@ UpgradeEvent.OnServerEvent:Connect(function(player, buildingOrList)
 end)
 
 BunkerEvent.OnServerEvent:Connect(function(player, bunker, action)
+	if typeof(bunker) ~= "Instance" then return end
 	bunkerManager:toggle(bunker, player)
 end)
 
 PingEvent.OnServerEvent:Connect(function(player, worldPos)
+	if typeof(worldPos) ~= "Vector3" then return end
 	if superWeaponManager then
 		superWeaponManager:broadcastPing(player, worldPos)
 	end
 end)
 
 MissileSiloEvent.OnServerEvent:Connect(function(player, action, silo, targetPos)
+	if typeof(silo) ~= "Instance" then return end
 	if action ~= "Launch" or not superWeaponManager then
 		return
 	end
@@ -332,6 +339,7 @@ HeadquartersControlEvent.OnServerEvent:Connect(function(player, action, building
 end)
 
 ResearchEvent.OnServerEvent:Connect(function(player, action, building, researchId)
+	if typeof(building) ~= "Instance" then return end
 	if action ~= "Start" or not researchManager then
 		return
 	end

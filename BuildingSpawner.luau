@@ -36,15 +36,26 @@ local BLACKLISTED_MATERIALS = {
 	[Enum.Material.ForceField] = true,
 }
 
+local teamPaintCache = setmetatable({}, {__mode = "k"})
+
 -- ÃÂ¤Ã‘Æ’ÃÂ½ÃÂºÃ‘â€ ÃÂ¸Ã‘Â ÃÂ¿ÃÂ¾ÃÂºÃ‘â‚¬ÃÂ°Ã‘ÂÃÂºÃÂ¸ ÃÂ² Ã‘â€ ÃÂ²ÃÂµÃ‘â€š ÃÂºÃÂ¾ÃÂ¼ÃÂ°ÃÂ½ÃÂ´Ã‘â€¹
 local function applyTeamColor(model, player)
 	if not player then return end
 	local teamColor = player:GetAttribute("TeamColor")
 	if not teamColor then return end
-	for _, part in pairs(model:GetDescendants()) do
-		if part:IsA("BasePart") and part.Name == "TeamPaint" then
-			part.Color = teamColor
+
+	if not teamPaintCache[model] then
+		local parts = {}
+		for _, part in pairs(model:GetDescendants()) do
+			if part:IsA("BasePart") and part.Name == "TeamPaint" then
+				table.insert(parts, part)
+			end
 		end
+		teamPaintCache[model] = parts
+	end
+
+	for _, part in ipairs(teamPaintCache[model]) do
+		part.Color = teamColor
 	end
 end
 
