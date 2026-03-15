@@ -28,12 +28,24 @@ end
 
 setupGroups()
 
+local collisionPartsCache = setmetatable({}, { __mode = "k" })
+
 function _G.setCollisionGroup(model, groupName)
 	if not model then return end
-	for _, part in pairs(model:GetDescendants()) do
-		if part:IsA("BasePart") then
-			pcall(function() part.CollisionGroup = groupName end)
+
+	local parts = collisionPartsCache[model]
+	if not parts then
+		parts = {}
+		for _, part in pairs(model:GetDescendants()) do
+			if part:IsA("BasePart") then
+				table.insert(parts, part)
+			end
 		end
+		collisionPartsCache[model] = parts
+	end
+
+	for _, part in ipairs(parts) do
+		pcall(function() part.CollisionGroup = groupName end)
 	end
 end
 
