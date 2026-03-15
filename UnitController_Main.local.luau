@@ -37,6 +37,7 @@ local MoveCommand = ReplicatedStorage:WaitForChild("MoveCommand")
 local PingEvent = ReplicatedStorage:WaitForChild("PingEvent")
 local WorldEffectEvent = ReplicatedStorage:WaitForChild("WorldEffectEvent")
 local visualRotationOffsets = setmetatable({}, { __mode = "k" })
+local cachedProjectileTemplates = {}
 
 -- Load tooltip preference
 local function loadTooltipPreference()
