@@ -37,6 +37,7 @@ local MoveCommand = ReplicatedStorage:WaitForChild("MoveCommand")
 local PingEvent = ReplicatedStorage:WaitForChild("PingEvent")
 local WorldEffectEvent = ReplicatedStorage:WaitForChild("WorldEffectEvent")
 local visualRotationOffsets = setmetatable({}, { __mode = "k" })
+local cachedProjectileTemplates = {}
 
 -- Load tooltip preference
 local function loadTooltipPreference()
@@ -412,39 +413,52 @@ local function findEffectTemplate(name)
 	return effectsFolder and effectsFolder:FindFirstChild(name)
 end
 
-local function applyTeamPaintColor(target, teamColor)
-	if typeof(teamColor) ~= "Color3" or not target then
-		return
+local cachedProjectileTemplates = {}
+
+local function getProcessedProjectileTemplate(templateName, teamColor)
+	local cacheKey = tostring(templateName) .. "_" .. tostring(teamColor)
+	if cachedProjectileTemplates[cacheKey] then
+		return cachedProjectileTemplates[cacheKey]:Clone()
 	end
-	if target:IsA("BasePart") and target.Name == "TeamPaint" then
-		target.Color = teamColor
+
+	local baseTemplate = findEffectTemplate(templateName)
+	if not baseTemplate then
+		return nil
 	end
-	for _, inst in ipairs(target:GetDescendants()) do
-		if inst:IsA("BasePart") and inst.Name == "TeamPaint" then
-			inst.Color = teamColor
+
+	local clone = baseTemplate:Clone()
+
+	if typeof(teamColor) == "Color3" and clone:IsA("BasePart") and clone.Name == "TeamPaint" then
+		clone.Color = teamColor
+	end
+
+	for _, inst in ipairs(clone:GetDescendants()) do
+		if inst:IsA("BasePart") then
+			inst.Anchored = true
+			inst.CanCollide = false
+			inst.CanQuery = false
+			if inst.Name == "TeamPaint" and typeof(teamColor) == "Color3" then
+				inst.Color = teamColor
+			end
+		elseif inst:IsA("Script") or inst:IsA("LocalScript") then
+			inst:Destroy()
 		end
 	end
+
+	cachedProjectileTemplates[cacheKey] = clone
+	return clone:Clone()
 end
 
 local function createProjectileVisual(templateName, color, size, options)
-	local template = templateName and findEffectTemplate(templateName)
-	if template then
-		local clone = template:Clone()
-		for _, inst in ipairs(clone:GetDescendants()) do
-			if inst:IsA("BasePart") then
-				inst.Anchored = true
-				inst.CanCollide = false
-				inst.CanQuery = false
-			elseif inst:IsA("Script") or inst:IsA("LocalScript") then
-				inst:Destroy()
+	if templateName then
+		local clone = getProcessedProjectileTemplate(templateName, options and options.teamColor)
+		if clone then
+			if clone:IsA("Model") then
+				visualRotationOffsets[clone] = clone:GetPivot().Rotation
 			end
+			clone.Parent = visualsFolder
+			return clone
 		end
-		applyTeamPaintColor(clone, options and options.teamColor)
-		if clone:IsA("Model") then
-			visualRotationOffsets[clone] = clone:GetPivot().Rotation
-		end
-		clone.Parent = visualsFolder
-		return clone
 	end
 	return makeTrailPart(color, size)
 end
@@ -938,26 +952,39 @@ local function createGhosts()
 		return 0.5
 	end
 
+	local ghostTemplates = {}
 	for _, unit in ipairs(selected) do
-		local ghost = unit:Clone()
-		ghost.Name = "Ghost_" .. unit.Name
-		for _, part in ipairs(ghost:GetDescendants()) do
-			if part:IsA("BasePart") then
-				part.Transparency = 0.7
-				part.Material = Enum.Material.Neon
-				part.Color = Color3.fromRGB(0, 200, 255)
-				part.CanCollide = false
-				part.Anchored = true
-				part.CanQuery = false
-			elseif part:IsA("Decal") or part:IsA("Texture") then
-				part.Transparency = 0.7
+		local template = ghostTemplates[unit.Name]
+		if not template then
+			template = unit:Clone()
+			template.Name = "Ghost_" .. unit.Name
+			for _, part in ipairs(template:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.Transparency = 0.7
+					part.Material = Enum.Material.Neon
+					part.Color = Color3.fromRGB(0, 200, 255)
+					part.CanCollide = false
+					part.Anchored = true
+					part.CanQuery = false
+				elseif part:IsA("Decal") or part:IsA("Texture") then
+					part.Transparency = 0.7
+				end
 			end
+			local hum = template:FindFirstChildOfClass("Humanoid")
+			if hum then hum:Destroy() end
+			ghostTemplates[unit.Name] = template
 		end
+
+		local ghost = template:Clone()
 		local hum = ghost:FindFirstChildOfClass("Humanoid")
 		if hum then hum:Destroy() end
 		ghost.Parent = ghostFolder
 		table.insert(ghostUnits, ghost)
 		ghostGroundOffsets[ghost] = computeGroundOffset(ghost)
+	end
+
+	for _, template in pairs(ghostTemplates) do
+		template:Destroy()
 	end
 end
 

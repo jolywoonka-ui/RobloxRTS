@@ -21,30 +21,66 @@ local DEFAULT_SETTINGS = {
 	ShowDetailedSquads = true,
 }
 
+-- Helper to clone a simple table
+local function cloneTable(t)
+	local clone = {}
+	for k, v in pairs(t) do
+		clone[k] = v
+	end
+	return clone
+end
+
+-- Sanitize and validate settings data
+local function sanitizeSettings(data)
+	local sanitized = {}
+	if type(data) ~= "table" then
+		return cloneTable(DEFAULT_SETTINGS)
+	end
+
+	for key, defaultValue in pairs(DEFAULT_SETTINGS) do
+		local value = data[key]
+		if value == nil then
+			sanitized[key] = defaultValue
+			continue
+		end
+
+		local expectedType = type(defaultValue)
+		if type(value) == expectedType then
+			if expectedType == "string" then
+				-- Enforce reasonable length limit for string settings (e.g. keybinds)
+				if string.len(value) <= 32 then
+					sanitized[key] = value
+				else
+					sanitized[key] = defaultValue
+				end
+			else
+				sanitized[key] = value
+			end
+		else
+			sanitized[key] = defaultValue
+		end
+	end
+
+	return sanitized
+end
+
 -- Load settings for a player
 local function loadSettings(userId)
 	local success, data = pcall(function()
 		return settingsStore:GetAsync(userId)
 	end)
 	if success and data then
-		local merged = {}
-		for key, value in pairs(DEFAULT_SETTINGS) do
-			if data[key] ~= nil then
-				merged[key] = data[key]
-			else
-				merged[key] = value
-			end
-		end
-		return merged
+		return sanitizeSettings(data)
 	else
-		return DEFAULT_SETTINGS
+		return cloneTable(DEFAULT_SETTINGS)
 	end
 end
 
 -- Save settings for a player
 local function saveSettings(userId, data)
+	local sanitized = sanitizeSettings(data)
 	pcall(function()
-		settingsStore:SetAsync(userId, data)
+		settingsStore:SetAsync(userId, sanitized)
 	end)
 end
 
