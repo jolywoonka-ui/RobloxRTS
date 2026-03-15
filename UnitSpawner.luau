@@ -8,28 +8,26 @@ local Config = require(ReplicatedStorage:WaitForChild("BuildingConfig"))
 local UnitPhysics = require(ServerStorage:WaitForChild("UnitPhysics"))
 
 local UnitSpawner = {}
-local AIR_HEIGHT_FACTOR = 0.75
-
 local templateCache = {}
 
-local function getCachedTemplate(unitName, uData)
+local function getPreModifiedTemplate(unitName, uData)
 	if templateCache[unitName] then
-		return templateCache[unitName]:Clone()
+		return templateCache[unitName]
 	end
 
 	local template = UnitsFolder:FindFirstChild(unitName)
 	if not template then return nil end
 
-	local cached = template:Clone()
+	local cachedModel = template:Clone()
 
-	local root = cached:IsA("Model") and cached.PrimaryPart or cached
-	if cached:IsA("Model") and not cached.PrimaryPart then
-		local p = cached:FindFirstChildWhichIsA("BasePart")
-		if p then cached.PrimaryPart = p; root = p end
+	local root = cachedModel:IsA("Model") and cachedModel.PrimaryPart or cachedModel
+	if cachedModel:IsA("Model") and not cachedModel.PrimaryPart then
+		local p = cachedModel:FindFirstChildWhichIsA("BasePart")
+		if p then root = p end
 	end
 
 	if uData.Class == "Air" then
-		for _, p in pairs(cached:GetDescendants()) do
+		for _, p in pairs(cachedModel:GetDescendants()) do
 			if p:IsA("BasePart") then
 				p.Anchored = true
 				p.CanCollide = false
@@ -37,7 +35,7 @@ local function getCachedTemplate(unitName, uData)
 			end
 		end
 	else
-		for _, p in pairs(cached:GetDescendants()) do
+		for _, p in pairs(cachedModel:GetDescendants()) do
 			if p:IsA("BasePart") then
 				p.Anchored = true
 				p.CanCollide = false
@@ -46,7 +44,6 @@ local function getCachedTemplate(unitName, uData)
 				p.AssemblyAngularVelocity = Vector3.zero
 			end
 		end
-
 		if root then
 			local bf = root:FindFirstChild("AntiGravity")
 			if bf and bf:IsA("BodyForce") then
@@ -55,18 +52,67 @@ local function getCachedTemplate(unitName, uData)
 		end
 	end
 
-	templateCache[unitName] = cached
-	return cached:Clone()
+	local teamPaintIndices = {}
+	local descendants = cachedModel:GetDescendants()
+	for i, p in ipairs(descendants) do
+		if p:IsA("BasePart") and p.Name == "TeamPaint" then
+			table.insert(teamPaintIndices, i)
+		end
+	end
+
+	templateCache[unitName] = {
+		model = cachedModel,
+		teamPaintIndices = teamPaintIndices
+	}
+
+	return templateCache[unitName]
+end
+
+local AIR_HEIGHT_FACTOR = 0.75
+
+local UnitCache = {}
+
+local function getUnitCache(template)
+	local cache = UnitCache[template.Name]
+	if cache then return cache end
+
+	cache = {
+		allParts = {},
+		teamPaints = {}
+	}
+
+	for i, part in ipairs(template:GetDescendants()) do
+		if part:IsA("BasePart") then
+			table.insert(cache.allParts, i)
+			if part.Name == "TeamPaint" then
+				table.insert(cache.teamPaints, i)
+			end
+		end
+	end
+
+	UnitCache[template.Name] = cache
+	return cache
 end
 
 -- ÃÂ¤Ã‘Æ’ÃÂ½ÃÂºÃ‘â€ ÃÂ¸Ã‘Â ÃÂ¿ÃÂ¾ÃÂºÃ‘â‚¬ÃÂ°Ã‘ÂÃÂºÃÂ¸ ÃÂ² Ã‘â€ ÃÂ²ÃÂµÃ‘â€š ÃÂºÃÂ¾ÃÂ¼ÃÂ°ÃÂ½ÃÂ´Ã‘â€¹
-local function applyTeamColor(model, player)
+local function applyTeamColor(model, player, paintIndices)
 	if not player then return end
 	local teamColor = player:GetAttribute("TeamColor")
 	if not teamColor then return end
-	for _, part in pairs(model:GetDescendants()) do
-		if part:IsA("BasePart") and part.Name == "TeamPaint" then
-			part.Color = teamColor
+
+	if paintIndices then
+		local descendants = model:GetDescendants()
+		for _, index in ipairs(paintIndices) do
+			local part = descendants[index]
+			if part then
+				part.Color = teamColor
+			end
+		end
+	else
+		for _, part in ipairs(model:GetDescendants()) do
+			if part:IsA("BasePart") and part.Name == "TeamPaint" then
+				part.Color = teamColor
+			end
 		end
 	end
 end
@@ -169,9 +215,12 @@ function UnitSpawner.spawnNeutral(building, unitName)
 	local uData = Config.Units[unitName]
 	if not uData then return end
 
-	local unit = getCachedTemplate(unitName, uData)
-	if not unit then return end
+	local templateData = getPreModifiedTemplate(unitName, uData)
+	if not templateData then return end
+
+	local unit = templateData.model:Clone()
 	unit.Name = unitName
+	local unitCache = getUnitCache(template)
 
 	local spawnCFrame = getSpawnCFrame(building)
 	local safeCFrame
@@ -249,9 +298,12 @@ function UnitSpawner.spawnPlayer(player, building, unitName, supplyAlreadyReserv
 		if currentUnits.Value + incomingSupply > unitLimit.Value then return end
 	end
 
-	local unit = getCachedTemplate(unitName, uData)
-	if not unit then return end
+	local templateData = getPreModifiedTemplate(unitName, uData)
+	if not templateData then return end
+
+	local unit = templateData.model:Clone()
 	unit.Name = unitName
+	local unitCache = getUnitCache(template)
 
 	local spawnCFrame = getSpawnCFrame(building)
 	local safeCFrame
@@ -270,7 +322,7 @@ function UnitSpawner.spawnPlayer(player, building, unitName, supplyAlreadyReserv
 	end
 	if not root then unit:Destroy() return end
 
-	applyTeamColor(unit, player)
+	applyTeamColor(unit, player, templateData.teamPaintIndices)
 
 	local hum = unit:FindFirstChild("Humanoid")
 	if not hum then
