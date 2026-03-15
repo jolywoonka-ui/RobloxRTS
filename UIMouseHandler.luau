@@ -30,7 +30,7 @@ local function getOwnedBuildingsOfType(buildingType)
 		return list
 	end
 
-	for _, inst in ipairs(container:GetDescendants()) do
+	for _, inst in ipairs(container:GetChildren()) do
 		if inst:IsA("Model") and inst:GetAttribute("Type") == buildingType and inst:GetAttribute("Owner") == player.Name then
 			table.insert(list, inst)
 		end
