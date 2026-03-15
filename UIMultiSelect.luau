@@ -14,92 +14,25 @@ local UIMultiSelect = {}
 local selectedBuildings = {}
 local buildingHighlights = {}
 local buildingRangeIndicators = {}
-local mapPartsCache = {}
-local mapPartsSet = {}
-local mapFolderAddedConn = nil
-local mapFolderRemovingConn = nil
-local currentMapAddedConn = nil
-local currentMapRemovedConn = nil
 
 -- Single global update loop
 local rangeUpdateConn = nil
 local lastRangeUpdate = 0
 local RANGE_THROTTLE = 0.1
 
-local function clearMapPartsCache()
-	table.clear(mapPartsCache)
-	table.clear(mapPartsSet)
-end
-
-local function addMapPart(part)
-	if not part or not part:IsA("BasePart") then return end
-	if mapPartsSet[part] then return end
-	mapPartsSet[part] = true
-	table.insert(mapPartsCache, part)
-end
-
-local function removeMapPart(part)
-	if not mapPartsSet[part] then return end
-	mapPartsSet[part] = nil
-	for i = #mapPartsCache, 1, -1 do
-		if mapPartsCache[i] == part then
-			table.remove(mapPartsCache, i)
-			break
-		end
-	end
-end
-
-local function disconnectMapCacheConnections()
-	if mapFolderAddedConn then
-		mapFolderAddedConn:Disconnect()
-		mapFolderAddedConn = nil
-	end
-	if mapFolderRemovingConn then
-		mapFolderRemovingConn:Disconnect()
-		mapFolderRemovingConn = nil
-	end
-end
-
-local function rebuildMapPartsCache()
-	clearMapPartsCache()
-	local map = workspace:FindFirstChild("CurrentMap")
-	if not map then return end
-	local mapFolder = map:FindFirstChild("Map")
-	if not mapFolder then return end
-	for _, inst in ipairs(mapFolder:GetDescendants()) do
-		if inst:IsA("BasePart") then
-			addMapPart(inst)
-		end
-	end
-end
-
-local function bindMapCacheSignals()
-	disconnectMapCacheConnections()
-	rebuildMapPartsCache()
-
-	local map = workspace:FindFirstChild("CurrentMap")
-	local mapFolder = map and map:FindFirstChild("Map")
-	if not mapFolder then return end
-
-	mapFolderAddedConn = mapFolder.DescendantAdded:Connect(function(inst)
-		if inst:IsA("BasePart") then
-			addMapPart(inst)
-		end
-	end)
-
-	mapFolderRemovingConn = mapFolder.DescendantRemoving:Connect(function(inst)
-		if inst:IsA("BasePart") then
-			removeMapPart(inst)
-		end
-	end)
-end
-
 local function getGroundY(pos, building)
 	local rayOrigin = pos + Vector3.new(0, 200, 0)
 	local rayDir = Vector3.new(0, -400, 0)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
-	params.FilterDescendantsInstances = mapPartsCache
+
+	local map = workspace:FindFirstChild("CurrentMap")
+	local mapFolder = map and map:FindFirstChild("Map")
+	if mapFolder then
+		params.FilterDescendantsInstances = {mapFolder}
+	else
+		params.FilterDescendantsInstances = {}
+	end
 
 	local result = workspace:Raycast(rayOrigin, rayDir, params)
 	if result then return result.Position.Y end
@@ -279,19 +212,6 @@ end
 workspace.DescendantRemoving:Connect(function(desc)
 	if selectedBuildings[desc] then
 		UIMultiSelect.removeBuilding(desc)
-	end
-end)
-
-bindMapCacheSignals()
-currentMapAddedConn = workspace.ChildAdded:Connect(function(child)
-	if child.Name == "CurrentMap" then
-		bindMapCacheSignals()
-	end
-end)
-currentMapRemovedConn = workspace.ChildRemoved:Connect(function(child)
-	if child.Name == "CurrentMap" then
-		disconnectMapCacheConnections()
-		clearMapPartsCache()
 	end
 end)
 
