@@ -370,12 +370,6 @@ function BuildingSpawner:spawn(player, name, cframe, isFree)
 		b:SetAttribute("BuildRequiredProgress", data.BuildRequirement or 100)
 		b:SetAttribute("IsUnderConstruction", true)
 		b:SetAttribute("FinalY", b:GetPivot().Position.Y)
-		for _, p in pairs(b:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Transparency = 0.8
-				p.CanCollide = false
-			end
-		end
 	end
 
 	local hum = b:FindFirstChild("Humanoid") or Instance.new("Humanoid", b)
@@ -383,12 +377,20 @@ function BuildingSpawner:spawn(player, name, cframe, isFree)
 	hum.Health = isInstant and data.Health or 100
 	hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
 
-	for _, p in pairs(b:GetDescendants()) do
+	local descendants = b:GetDescendants()
+
+	if _G.setCollisionGroup then
+		_G.setCollisionGroup(b, "Buildings")
+	end
+
+	for _, p in ipairs(descendants) do
 		if p:IsA("BasePart") then
+			if not isInstant then
+				p.Transparency = 0.8
+				p.CanCollide = false
+			end
 			p.Anchored = true
-			if _G.setCollisionGroup then
-				_G.setCollisionGroup(b, "Buildings")
-			else
+			if not _G.setCollisionGroup then
 				p.CollisionGroup = "Default"
 			end
 		end
