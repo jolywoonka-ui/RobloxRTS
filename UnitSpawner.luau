@@ -10,6 +10,55 @@ local UnitPhysics = require(ServerStorage:WaitForChild("UnitPhysics"))
 local UnitSpawner = {}
 local AIR_HEIGHT_FACTOR = 0.75
 
+local templateCache = {}
+
+local function getCachedTemplate(unitName, uData)
+	if templateCache[unitName] then
+		return templateCache[unitName]:Clone()
+	end
+
+	local template = UnitsFolder:FindFirstChild(unitName)
+	if not template then return nil end
+
+	local cached = template:Clone()
+
+	local root = cached:IsA("Model") and cached.PrimaryPart or cached
+	if cached:IsA("Model") and not cached.PrimaryPart then
+		local p = cached:FindFirstChildWhichIsA("BasePart")
+		if p then cached.PrimaryPart = p; root = p end
+	end
+
+	if uData.Class == "Air" then
+		for _, p in pairs(cached:GetDescendants()) do
+			if p:IsA("BasePart") then
+				p.Anchored = true
+				p.CanCollide = false
+				p.CollisionGroup = "AirUnits"
+			end
+		end
+	else
+		for _, p in pairs(cached:GetDescendants()) do
+			if p:IsA("BasePart") then
+				p.Anchored = true
+				p.CanCollide = false
+				p.CollisionGroup = "Units"
+				p.AssemblyLinearVelocity = Vector3.zero
+				p.AssemblyAngularVelocity = Vector3.zero
+			end
+		end
+
+		if root then
+			local bf = root:FindFirstChild("AntiGravity")
+			if bf and bf:IsA("BodyForce") then
+				bf:Destroy()
+			end
+		end
+	end
+
+	templateCache[unitName] = cached
+	return cached:Clone()
+end
+
 -- ÃÂ¤Ã‘Æ’ÃÂ½ÃÂºÃ‘â€ ÃÂ¸Ã‘Â ÃÂ¿ÃÂ¾ÃÂºÃ‘â‚¬ÃÂ°Ã‘ÂÃÂºÃÂ¸ ÃÂ² Ã‘â€ ÃÂ²ÃÂµÃ‘â€š ÃÂºÃÂ¾ÃÂ¼ÃÂ°ÃÂ½ÃÂ´Ã‘â€¹
 local function applyTeamColor(model, player)
 	if not player then return end
@@ -120,10 +169,8 @@ function UnitSpawner.spawnNeutral(building, unitName)
 	local uData = Config.Units[unitName]
 	if not uData then return end
 
-	local template = UnitsFolder:FindFirstChild(unitName)
-	if not template then return end
-
-	local unit = template:Clone()
+	local unit = getCachedTemplate(unitName, uData)
+	if not unit then return end
 	unit.Name = unitName
 
 	local spawnCFrame = getSpawnCFrame(building)
@@ -142,33 +189,6 @@ function UnitSpawner.spawnNeutral(building, unitName)
 		if p then unit.PrimaryPart = p; root = p end
 	end
 	if not root then unit:Destroy() return end
-
-	if uData.Class == "Air" then
-		-- Ãâ€™ÃÂ¾ÃÂ·ÃÂ´Ã‘Æ’Ã‘Ë†ÃÂ½Ã‘â€¹ÃÂµ: ÃÂ·ÃÂ°ÃÂ°ÃÂ½ÃÂºÃÂµÃ‘â‚¬ÃÂµÃÂ½Ã‘â€¹
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Anchored = true
-				p.CanCollide = false
-				p.CollisionGroup = "AirUnits"
-			end
-		end
-	else
-		-- ÃÂÃÂ°ÃÂ·ÃÂµÃÂ¼ÃÂ½Ã‘â€¹ÃÂµ: ÃÂ½ÃÂµ ÃÂ·ÃÂ°ÃÂ°ÃÂ½ÃÂºÃÂµÃ‘â‚¬ÃÂµÃÂ½Ã‘â€¹, ÃÂ½ÃÂ¾ Ã‘Â ÃÂ°ÃÂ½Ã‘â€šÃÂ¸ÃÂ³Ã‘â‚¬ÃÂ°ÃÂ²ÃÂ¸Ã‘â€šÃÂ°Ã‘â€ ÃÂ¸ÃÂµÃÂ¹
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Anchored = true
-				p.CanCollide = false
-				p.CollisionGroup = "Units"
-				p.AssemblyLinearVelocity = Vector3.zero
-				p.AssemblyAngularVelocity = Vector3.zero
-			end
-		end
-		-- Ãâ€ÃÂ¾ÃÂ±ÃÂ°ÃÂ²ÃÂ»Ã‘ÂÃÂµÃÂ¼ ÃÂ°ÃÂ½Ã‘â€šÃÂ¸ÃÂ³Ã‘â‚¬ÃÂ°ÃÂ²ÃÂ¸Ã‘â€šÃÂ°Ã‘â€ ÃÂ¸Ã‘Å½ ÃÂº ÃÂºÃÂ¾Ã‘â‚¬ÃÂ½Ã‘Å½
-		local bf = root:FindFirstChild("AntiGravity")
-		if bf and bf:IsA("BodyForce") then
-			bf:Destroy()
-		end
-	end
 
 	local hum = unit:FindFirstChild("Humanoid") or Instance.new("Humanoid", unit)
 	hum.MaxHealth = uData.Health
@@ -229,10 +249,8 @@ function UnitSpawner.spawnPlayer(player, building, unitName, supplyAlreadyReserv
 		if currentUnits.Value + incomingSupply > unitLimit.Value then return end
 	end
 
-	local template = UnitsFolder:FindFirstChild(unitName)
-	if not template then return end
-
-	local unit = template:Clone()
+	local unit = getCachedTemplate(unitName, uData)
+	if not unit then return end
 	unit.Name = unitName
 
 	local spawnCFrame = getSpawnCFrame(building)
@@ -253,31 +271,6 @@ function UnitSpawner.spawnPlayer(player, building, unitName, supplyAlreadyReserv
 	if not root then unit:Destroy() return end
 
 	applyTeamColor(unit, player)
-
-	if uData.Class == "Air" then
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Anchored = true
-				p.CanCollide = false
-				p.CollisionGroup = "AirUnits"
-			end
-		end
-	else
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Anchored = true
-				p.CanCollide = false
-				p.CollisionGroup = "Units"
-				p.AssemblyLinearVelocity = Vector3.zero
-				p.AssemblyAngularVelocity = Vector3.zero
-			end
-		end
-		-- ÃÂÃÂ½Ã‘â€šÃÂ¸ÃÂ³Ã‘â‚¬ÃÂ°ÃÂ²ÃÂ¸Ã‘â€šÃÂ°Ã‘â€ ÃÂ¸Ã‘Â
-		local bf = root:FindFirstChild("AntiGravity")
-		if bf and bf:IsA("BodyForce") then
-			bf:Destroy()
-		end
-	end
 
 	local hum = unit:FindFirstChild("Humanoid")
 	if not hum then
