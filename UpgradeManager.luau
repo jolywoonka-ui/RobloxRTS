@@ -238,12 +238,13 @@ function UpgradeManager:completeUpgrade(building, data)
 		local part = descendants[idx]
 		if part then
 			part.Anchored = true
-			if _G.setCollisionGroup then
-				_G.setCollisionGroup(newBuilding, "Buildings")
-			else
+			if not hasSetCollisionGroup then
 				part.CollisionGroup = "Default"
 			end
 		end
+	end
+	if hasSetCollisionGroup then
+		_G.setCollisionGroup(newBuilding, "Buildings")
 	end
 
 	BuildingSpawner.addHealthBar(newBuilding)

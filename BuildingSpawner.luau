@@ -395,6 +395,9 @@ function BuildingSpawner:spawn(player, name, cframe, isFree)
 			end
 		end
 	end
+	if hasSetCollisionGroup then
+		_G.setCollisionGroup(b, "Buildings")
+	end
 
 	BuildingSpawner.addHealthBar(b)
 
