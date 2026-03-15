@@ -51,6 +51,7 @@ end
 
 -- LOGIC: Send Invite
 evInvite.OnServerEvent:Connect(function(sender, target)
+	if typeof(target) ~= "Instance" or not target:IsA("Player") then return end
 	if sender == target then return end
 
 	-- Validation 1: Target must not be in an alliance (Strict "Can't Leave" rule)
@@ -73,6 +74,7 @@ end)
 
 -- LOGIC: Respond to Invite
 evRespond.OnServerEvent:Connect(function(responder, sender, accepted)
+	if typeof(sender) ~= "Instance" or not sender:IsA("Player") then return end
 	if not accepted then return end
 
 	-- Re-Validate checks before forming

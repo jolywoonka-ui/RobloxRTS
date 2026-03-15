@@ -230,6 +230,7 @@ end)
 
 UpgradeEvent.OnServerEvent:Connect(function(player, buildingOrList)
 	if not upgradeManager then return end
+	if typeof(buildingOrList) ~= "Instance" and type(buildingOrList) ~= "table" then return end
 
 	local function tryUpgradeOne(building)
 		if typeof(building) ~= "Instance" then
@@ -266,6 +267,7 @@ end)
 
 BunkerEvent.OnServerEvent:Connect(function(player, bunker, action)
 	if typeof(bunker) ~= "Instance" then return end
+	if type(action) ~= "string" and action ~= nil then return end
 	bunkerManager:toggle(bunker, player)
 end)
 
@@ -277,7 +279,7 @@ PingEvent.OnServerEvent:Connect(function(player, worldPos)
 end)
 
 MissileSiloEvent.OnServerEvent:Connect(function(player, action, silo, targetPos)
-	if typeof(silo) ~= "Instance" then return end
+	if typeof(silo) ~= "Instance" or typeof(targetPos) ~= "Vector3" then return end
 	if action ~= "Launch" or not superWeaponManager then
 		return
 	end
@@ -343,6 +345,7 @@ ResearchEvent.OnServerEvent:Connect(function(player, action, building, researchI
 	if action ~= "Start" or not researchManager then
 		return
 	end
+	if type(researchId) ~= "string" and type(researchId) ~= "number" then return end
 
 	local ok, result = researchManager:startResearch(player, building, researchId)
 	if not ok then

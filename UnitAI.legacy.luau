@@ -111,6 +111,9 @@ RunService.Heartbeat:Connect(function(dt)
 end)
 
 MoveCommand.OnServerEvent:Connect(function(player, unitList, targetPos, isQueued, formation)
+    if type(unitList) ~= "table" or typeof(targetPos) ~= "Vector3" then
+        return
+    end
     Commands.handleMoveCommand(player, unitList, targetPos, isQueued, formation, MoveCommand)
 end)
 
