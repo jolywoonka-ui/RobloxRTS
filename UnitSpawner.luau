@@ -70,30 +70,6 @@ end
 
 local AIR_HEIGHT_FACTOR = 0.75
 
-local UnitCache = {}
-
-local function getUnitCache(template)
-	local cache = UnitCache[template.Name]
-	if cache then return cache end
-
-	cache = {
-		allParts = {},
-		teamPaints = {}
-	}
-
-	for i, part in ipairs(template:GetDescendants()) do
-		if part:IsA("BasePart") then
-			table.insert(cache.allParts, i)
-			if part.Name == "TeamPaint" then
-				table.insert(cache.teamPaints, i)
-			end
-		end
-	end
-
-	UnitCache[template.Name] = cache
-	return cache
-end
-
 -- ÃÂ¤Ã‘Æ’ÃÂ½ÃÂºÃ‘â€ ÃÂ¸Ã‘Â ÃÂ¿ÃÂ¾ÃÂºÃ‘â‚¬ÃÂ°Ã‘ÂÃÂºÃÂ¸ ÃÂ² Ã‘â€ ÃÂ²ÃÂµÃ‘â€š ÃÂºÃÂ¾ÃÂ¼ÃÂ°ÃÂ½ÃÂ´Ã‘â€¹
 local function applyTeamColor(model, player, paintIndices)
 	if not player then return end
@@ -220,7 +196,6 @@ function UnitSpawner.spawnNeutral(building, unitName)
 
 	local unit = templateData.model:Clone()
 	unit.Name = unitName
-	local unitCache = getUnitCache(template)
 
 	local spawnCFrame = getSpawnCFrame(building)
 	local safeCFrame
@@ -303,7 +278,6 @@ function UnitSpawner.spawnPlayer(player, building, unitName, supplyAlreadyReserv
 
 	local unit = templateData.model:Clone()
 	unit.Name = unitName
-	local unitCache = getUnitCache(template)
 
 	local spawnCFrame = getSpawnCFrame(building)
 	local safeCFrame
