@@ -32,21 +32,6 @@ local COLLAPSED_OFFSET = Vector2.new(20, -97)
 local STATS_EXPANDED_OFFSET = Vector2.new(20, -494)
 local STATS_COLLAPSED_OFFSET = Vector2.new(20, -183)
 
-local function createLabel(parent, text, size, position, font, textSize, color, align)
-	local label = Instance.new("TextLabel")
-	label.Size = size
-	label.Position = position
-	label.BackgroundTransparency = 1
-	label.Text = text or ""
-	label.TextColor3 = color or THEME.Text
-	label.TextTransparency = 0
-	label.Font = font or THEME.FontBody
-	label.TextSize = textSize or 14
-	label.TextXAlignment = align or Enum.TextXAlignment.Left
-	label.Parent = parent
-	return label
-end
-
 local function isResearchUnlocked(researchId)
 	if not researchId then
 		return true
@@ -106,7 +91,7 @@ function UIBuildMenu.init(mainScreen, gameFrame, statsContainerRef)
 		statsContainer.Position = statsExpandedPos
 	end
 
-	createLabel(BuildDock, "BUILD MENU", UDim2.new(1, -60, 0, 18), UDim2.new(0, 12, 0, 10), THEME.FontHeader, 18, THEME.Text)
+	UIStyle.createLabel(BuildDock, "BUILD MENU", UDim2.new(1, -60, 0, 18), UDim2.new(0, 12, 0, 10), THEME.FontHeader, 18, THEME.Text)
 
 	collapseBtn = Instance.new("TextButton")
 	collapseBtn.Size = UDim2.new(0, 28, 0, 24)
@@ -213,8 +198,8 @@ refreshBuildMenu = function()
 				stroke.Transparency = 0.5
 			end
 
-			createLabel(card, string.upper(name), UDim2.new(1, -16, 0, 16), UDim2.new(0, 8, 0, 8), THEME.FontBody, 12, THEME.Text)
-			createLabel(card, "$" .. tostring(data.Cost), UDim2.new(1, -16, 0, 18), UDim2.new(0, 8, 0, 28), THEME.FontHeader, 17, THEME.Positive)
+			UIStyle.createLabel(card, string.upper(name), UDim2.new(1, -16, 0, 16), UDim2.new(0, 8, 0, 8), THEME.FontBody, 12, THEME.Text)
+			UIStyle.createLabel(card, "$" .. tostring(data.Cost), UDim2.new(1, -16, 0, 18), UDim2.new(0, 8, 0, 28), THEME.FontHeader, 17, THEME.Positive)
 
 			local detailBits = {}
 			if data.Energy < 0 then
@@ -232,7 +217,7 @@ refreshBuildMenu = function()
 				table.insert(detailBits, "No extra stats")
 			end
 
-			local info = createLabel(card, table.concat(detailBits, "\n"), UDim2.new(1, -16, 0, 38), UDim2.new(0, 8, 1, -44), THEME.FontBody, 12, THEME.Text)
+			local info = UIStyle.createLabel(card, table.concat(detailBits, "\n"), UDim2.new(1, -16, 0, 38), UDim2.new(0, 8, 1, -44), THEME.FontBody, 12, THEME.Text)
 			info.TextWrapped = true
 			info.TextYAlignment = Enum.TextYAlignment.Top
 

@@ -8,29 +8,14 @@ local UIStatsPanel = {}
 
 local THEME = UIStyle.Theme
 
-local function createLabel(parent, text, size, position, font, textSize, color, align)
-	local label = Instance.new("TextLabel")
-	label.Size = size
-	label.Position = position
-	label.BackgroundTransparency = 1
-	label.Text = text or ""
-	label.TextColor3 = color or THEME.Text
-	label.TextTransparency = 0
-	label.Font = font or THEME.FontBody
-	label.TextSize = textSize or 14
-	label.TextXAlignment = align or Enum.TextXAlignment.Left
-	label.Parent = parent
-	return label
-end
-
 local function createMetric(parent, titleText, width)
 	local frame = Instance.new("Frame")
 	frame.Size = UDim2.new(0, width, 1, 0)
 	frame.BackgroundTransparency = 1
 	frame.Parent = parent
 
-	createLabel(frame, titleText, UDim2.new(1, 0, 0, 12), UDim2.new(0, 0, 0, 8), THEME.FontMain, 10, THEME.SubText)
-	local value = createLabel(frame, "-", UDim2.new(1, 0, 0, 18), UDim2.new(0, 0, 0, 24), THEME.FontHeader, 18, THEME.Text)
+	UIStyle.createLabel(frame, titleText, UDim2.new(1, 0, 0, 12), UDim2.new(0, 0, 0, 8), THEME.FontMain, 10, THEME.SubText)
+	local value = UIStyle.createLabel(frame, "-", UDim2.new(1, 0, 0, 18), UDim2.new(0, 0, 0, 24), THEME.FontHeader, 18, THEME.Text)
 	return value
 end
 
