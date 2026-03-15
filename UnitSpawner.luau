@@ -10,14 +10,73 @@ local UnitPhysics = require(ServerStorage:WaitForChild("UnitPhysics"))
 local UnitSpawner = {}
 local AIR_HEIGHT_FACTOR = 0.75
 
+local templateCache = {}
+
+local function initTemplateCache(template, unitName, uData)
+	if templateCache[unitName] then return end
+	local cache = { teamPaintPaths = {} }
+	local isAir = uData.Class == "Air"
+	local collisionGroup = isAir and "AirUnits" or "Units"
+
+	local function getPath(instance, rootModel)
+		local path = {}
+		local current = instance
+		while current and current ~= rootModel do
+			table.insert(path, 1, current.Name)
+			current = current.Parent
+		end
+		return path
+	end
+
+	for _, p in pairs(template:GetDescendants()) do
+		if p:IsA("BasePart") then
+			p.Anchored = true
+			p.CanCollide = false
+			p.CollisionGroup = collisionGroup
+			if not isAir then
+				p.AssemblyLinearVelocity = Vector3.zero
+				p.AssemblyAngularVelocity = Vector3.zero
+			end
+			if p.Name == "TeamPaint" then
+				table.insert(cache.teamPaintPaths, getPath(p, template))
+			end
+		end
+	end
+
+	if not isAir then
+		local root = template:IsA("Model") and template.PrimaryPart or template
+		if template:IsA("Model") and not template.PrimaryPart then
+			local p = template:FindFirstChildWhichIsA("BasePart")
+			if p then template.PrimaryPart = p; root = p end
+		end
+		if root then
+			local bf = root:FindFirstChild("AntiGravity")
+			if bf and bf:IsA("BodyForce") then
+				bf:Destroy()
+			end
+		end
+	end
+
+	templateCache[unitName] = cache
+end
+
 -- ÃÂ¤Ã‘Æ’ÃÂ½ÃÂºÃ‘â€ ÃÂ¸Ã‘Â ÃÂ¿ÃÂ¾ÃÂºÃ‘â‚¬ÃÂ°Ã‘ÂÃÂºÃÂ¸ ÃÂ² Ã‘â€ ÃÂ²ÃÂµÃ‘â€š ÃÂºÃÂ¾ÃÂ¼ÃÂ°ÃÂ½ÃÂ´Ã‘â€¹
-local function applyTeamColor(model, player)
+local function applyTeamColor(model, player, unitName)
 	if not player then return end
 	local teamColor = player:GetAttribute("TeamColor")
 	if not teamColor then return end
-	for _, part in pairs(model:GetDescendants()) do
-		if part:IsA("BasePart") and part.Name == "TeamPaint" then
-			part.Color = teamColor
+
+	local cache = templateCache[unitName]
+	if not cache then return end
+
+	for _, path in ipairs(cache.teamPaintPaths) do
+		local current = model
+		for _, name in ipairs(path) do
+			current = current:FindFirstChild(name)
+			if not current then break end
+		end
+		if current and current:IsA("BasePart") then
+			current.Color = teamColor
 		end
 	end
 end
@@ -123,6 +182,8 @@ function UnitSpawner.spawnNeutral(building, unitName)
 	local template = UnitsFolder:FindFirstChild(unitName)
 	if not template then return end
 
+	initTemplateCache(template, unitName, uData)
+
 	local unit = template:Clone()
 	unit.Name = unitName
 
@@ -142,33 +203,6 @@ function UnitSpawner.spawnNeutral(building, unitName)
 		if p then unit.PrimaryPart = p; root = p end
 	end
 	if not root then unit:Destroy() return end
-
-	if uData.Class == "Air" then
-		-- Ãâ€™ÃÂ¾ÃÂ·ÃÂ´Ã‘Æ’Ã‘Ë†ÃÂ½Ã‘â€¹ÃÂµ: ÃÂ·ÃÂ°ÃÂ°ÃÂ½ÃÂºÃÂµÃ‘â‚¬ÃÂµÃÂ½Ã‘â€¹
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Anchored = true
-				p.CanCollide = false
-				p.CollisionGroup = "AirUnits"
-			end
-		end
-	else
-		-- ÃÂÃÂ°ÃÂ·ÃÂµÃÂ¼ÃÂ½Ã‘â€¹ÃÂµ: ÃÂ½ÃÂµ ÃÂ·ÃÂ°ÃÂ°ÃÂ½ÃÂºÃÂµÃ‘â‚¬ÃÂµÃÂ½Ã‘â€¹, ÃÂ½ÃÂ¾ Ã‘Â ÃÂ°ÃÂ½Ã‘â€šÃÂ¸ÃÂ³Ã‘â‚¬ÃÂ°ÃÂ²ÃÂ¸Ã‘â€šÃÂ°Ã‘â€ ÃÂ¸ÃÂµÃÂ¹
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Anchored = true
-				p.CanCollide = false
-				p.CollisionGroup = "Units"
-				p.AssemblyLinearVelocity = Vector3.zero
-				p.AssemblyAngularVelocity = Vector3.zero
-			end
-		end
-		-- Ãâ€ÃÂ¾ÃÂ±ÃÂ°ÃÂ²ÃÂ»Ã‘ÂÃÂµÃÂ¼ ÃÂ°ÃÂ½Ã‘â€šÃÂ¸ÃÂ³Ã‘â‚¬ÃÂ°ÃÂ²ÃÂ¸Ã‘â€šÃÂ°Ã‘â€ ÃÂ¸Ã‘Å½ ÃÂº ÃÂºÃÂ¾Ã‘â‚¬ÃÂ½Ã‘Å½
-		local bf = root:FindFirstChild("AntiGravity")
-		if bf and bf:IsA("BodyForce") then
-			bf:Destroy()
-		end
-	end
 
 	local hum = unit:FindFirstChild("Humanoid") or Instance.new("Humanoid", unit)
 	hum.MaxHealth = uData.Health
@@ -232,6 +266,8 @@ function UnitSpawner.spawnPlayer(player, building, unitName, supplyAlreadyReserv
 	local template = UnitsFolder:FindFirstChild(unitName)
 	if not template then return end
 
+	initTemplateCache(template, unitName, uData)
+
 	local unit = template:Clone()
 	unit.Name = unitName
 
@@ -252,32 +288,7 @@ function UnitSpawner.spawnPlayer(player, building, unitName, supplyAlreadyReserv
 	end
 	if not root then unit:Destroy() return end
 
-	applyTeamColor(unit, player)
-
-	if uData.Class == "Air" then
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Anchored = true
-				p.CanCollide = false
-				p.CollisionGroup = "AirUnits"
-			end
-		end
-	else
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Anchored = true
-				p.CanCollide = false
-				p.CollisionGroup = "Units"
-				p.AssemblyLinearVelocity = Vector3.zero
-				p.AssemblyAngularVelocity = Vector3.zero
-			end
-		end
-		-- ÃÂÃÂ½Ã‘â€šÃÂ¸ÃÂ³Ã‘â‚¬ÃÂ°ÃÂ²ÃÂ¸Ã‘â€šÃÂ°Ã‘â€ ÃÂ¸Ã‘Â
-		local bf = root:FindFirstChild("AntiGravity")
-		if bf and bf:IsA("BodyForce") then
-			bf:Destroy()
-		end
-	end
+	applyTeamColor(unit, player, unitName)
 
 	local hum = unit:FindFirstChild("Humanoid")
 	if not hum then
