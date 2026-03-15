@@ -2,6 +2,7 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UIUtils = require(ReplicatedStorage:WaitForChild("UIUtils"))
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 local SellEvent = ReplicatedStorage:WaitForChild("SellEvent")
@@ -17,36 +18,6 @@ local lastBuildingClick = nil
 local lastBuildingClickTime = 0
 local DOUBLE_CLICK_WINDOW = 0.35
 
-local function isInteractiveGuiObject(guiObject)
-	if not guiObject or not guiObject.Visible then
-		return false
-	end
-	if guiObject:IsA("TextButton") or guiObject:IsA("ImageButton") or guiObject:IsA("TextBox") then
-		return true
-	end
-	if guiObject:IsA("ScrollingFrame") then
-		return true
-	end
-	if guiObject.Active then
-		return true
-	end
-	return false
-end
-
-local function isPointerOverGui()
-	local playerGui = player:FindFirstChild("PlayerGui")
-	if not playerGui then
-		return false
-	end
-	local mousePos = UserInputService:GetMouseLocation()
-	local guiObjects = playerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
-	for _, guiObject in ipairs(guiObjects) do
-		if isInteractiveGuiObject(guiObject) then
-			return true
-		end
-	end
-	return false
-end
 
 local function isCtrlDown()
 	return UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
@@ -123,7 +94,7 @@ local function onInputBegan(input, g)
         end
     end
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		if isPointerOverGui() or (UIInspector and UIInspector.isPointerOverInspector and UIInspector.isPointerOverInspector()) then
+		if UIUtils.isPointerOverGui() or (UIInspector and UIInspector.isPointerOverInspector and UIInspector.isPointerOverInspector()) then
 			return
 		end
 		local ray = mouse.UnitRay
