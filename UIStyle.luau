@@ -154,6 +154,22 @@ function UIStyle.applyButton(obj, kind)
 	return obj
 end
 
+function UIStyle.createLabel(parent, text, size, position, font, textSize, color, align)
+	local theme = UIStyle.Theme
+	local label = Instance.new("TextLabel")
+	label.Size = size
+	label.Position = position
+	label.BackgroundTransparency = 1
+	label.Text = text or ""
+	label.TextColor3 = color or theme.Text
+	label.TextTransparency = 0
+	label.Font = font or theme.FontBody
+	label.TextSize = textSize or 14
+	label.TextXAlignment = align or Enum.TextXAlignment.Left
+	label.Parent = parent
+	return label
+end
+
 function UIStyle.applyHeaderLabel(label, size, align)
 	local theme = UIStyle.Theme
 	label.BackgroundTransparency = 1

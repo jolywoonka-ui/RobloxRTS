@@ -33,21 +33,6 @@ local function updateOpenButtonPosition()
 	end
 end
 
-local function createLabel(parent, text, size, position, font, textSize, color, align)
-	local label = Instance.new("TextLabel")
-	label.Size = size
-	label.Position = position
-	label.BackgroundTransparency = 1
-	label.Text = text or ""
-	label.TextColor3 = color or THEME.Text
-	label.TextTransparency = 0
-	label.Font = font or THEME.FontBody
-	label.TextSize = textSize or 14
-	label.TextXAlignment = align or Enum.TextXAlignment.Left
-	label.Parent = parent
-	return label
-end
-
 local function createButton(parent, text, size, position, kind)
 	local button = Instance.new("TextButton")
 	button.Size = size
@@ -132,8 +117,8 @@ header.Position = UDim2.new(0, 10, 0, 10)
 header.BackgroundTransparency = 1
 header.Parent = window
 
-createLabel(header, "ALLIANCE", UDim2.new(0, 180, 1, 0), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 20, THEME.Text)
-local summaryText = createLabel(header, "Alliance: Solo", UDim2.new(0, 280, 1, 0), UDim2.new(0, 150, 0, 0), THEME.FontMain, 12, THEME.Text)
+UIStyle.createLabel(header, "ALLIANCE", UDim2.new(0, 180, 1, 0), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 20, THEME.Text)
+local summaryText = UIStyle.createLabel(header, "Alliance: Solo", UDim2.new(0, 280, 1, 0), UDim2.new(0, 150, 0, 0), THEME.FontMain, 12, THEME.Text)
 local closeX = createButton(header, "CLOSE", UDim2.new(0, 78, 0, 26), UDim2.new(1, -78, 0, 3), "secondary")
 
 local rosterPanel = Instance.new("Frame")
@@ -143,7 +128,7 @@ rosterPanel.BorderSizePixel = 0
 rosterPanel.Parent = window
 UIStyle.applyPanel(rosterPanel, "panel")
 
-createLabel(rosterPanel, "PLAYERS", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 10), THEME.FontMain, 11, THEME.SubText)
+UIStyle.createLabel(rosterPanel, "PLAYERS", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 10), THEME.FontMain, 11, THEME.SubText)
 
 local rosterList = Instance.new("ScrollingFrame")
 rosterList.Size = UDim2.new(1, -20, 1, -34)
@@ -163,10 +148,10 @@ detailPanel.BorderSizePixel = 0
 detailPanel.Parent = window
 UIStyle.applyPanel(detailPanel, "panel")
 
-local detailTitle = createLabel(detailPanel, "NO PLAYER SELECTED", UDim2.new(1, -20, 0, 22), UDim2.new(0, 10, 0, 10), THEME.FontHeader, 18, THEME.Text)
-local detailStatus = createLabel(detailPanel, "Select a commander from the roster.", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 34), THEME.FontBody, 12, THEME.Text)
+local detailTitle = UIStyle.createLabel(detailPanel, "NO PLAYER SELECTED", UDim2.new(1, -20, 0, 22), UDim2.new(0, 10, 0, 10), THEME.FontHeader, 18, THEME.Text)
+local detailStatus = UIStyle.createLabel(detailPanel, "Select a commander from the roster.", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 34), THEME.FontBody, 12, THEME.Text)
 
-local statusTag = createLabel(detailPanel, "IDLE", UDim2.new(0, 110, 0, 16), UDim2.new(1, -120, 0, 12), THEME.FontMain, 10, THEME.Text, Enum.TextXAlignment.Right)
+local statusTag = UIStyle.createLabel(detailPanel, "IDLE", UDim2.new(0, 110, 0, 16), UDim2.new(1, -120, 0, 12), THEME.FontMain, 10, THEME.Text, Enum.TextXAlignment.Right)
 
 local intelStrip = Instance.new("Frame")
 intelStrip.Size = UDim2.new(1, -20, 0, 66)
@@ -176,16 +161,16 @@ intelStrip.Parent = detailPanel
 UIStyle.applyPanel(intelStrip, "background")
 
 local intelValues = {
-	Credits = createLabel(intelStrip, "-", UDim2.new(0.33, -8, 0, 20), UDim2.new(0, 8, 0, 28), THEME.FontHeader, 17, THEME.Positive),
-	Income = createLabel(intelStrip, "-", UDim2.new(0.33, -8, 0, 20), UDim2.new(0.33, 4, 0, 28), THEME.FontHeader, 17, THEME.Text),
-	Units = createLabel(intelStrip, "-", UDim2.new(0.33, -12, 0, 20), UDim2.new(0.66, 8, 0, 28), THEME.FontHeader, 17, THEME.Text),
+	Credits = UIStyle.createLabel(intelStrip, "-", UDim2.new(0.33, -8, 0, 20), UDim2.new(0, 8, 0, 28), THEME.FontHeader, 17, THEME.Positive),
+	Income = UIStyle.createLabel(intelStrip, "-", UDim2.new(0.33, -8, 0, 20), UDim2.new(0.33, 4, 0, 28), THEME.FontHeader, 17, THEME.Text),
+	Units = UIStyle.createLabel(intelStrip, "-", UDim2.new(0.33, -12, 0, 20), UDim2.new(0.66, 8, 0, 28), THEME.FontHeader, 17, THEME.Text),
 }
-createLabel(intelStrip, "CREDITS", UDim2.new(0.33, -8, 0, 12), UDim2.new(0, 8, 0, 10), THEME.FontMain, 10, THEME.SubText)
-createLabel(intelStrip, "INCOME", UDim2.new(0.33, -8, 0, 12), UDim2.new(0.33, 4, 0, 10), THEME.FontMain, 10, THEME.SubText)
-createLabel(intelStrip, "UNITS", UDim2.new(0.33, -12, 0, 12), UDim2.new(0.66, 8, 0, 10), THEME.FontMain, 10, THEME.SubText)
+UIStyle.createLabel(intelStrip, "CREDITS", UDim2.new(0.33, -8, 0, 12), UDim2.new(0, 8, 0, 10), THEME.FontMain, 10, THEME.SubText)
+UIStyle.createLabel(intelStrip, "INCOME", UDim2.new(0.33, -8, 0, 12), UDim2.new(0.33, 4, 0, 10), THEME.FontMain, 10, THEME.SubText)
+UIStyle.createLabel(intelStrip, "UNITS", UDim2.new(0.33, -12, 0, 12), UDim2.new(0.66, 8, 0, 10), THEME.FontMain, 10, THEME.SubText)
 
-createLabel(detailPanel, "ACTION", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 142), THEME.FontMain, 11, THEME.SubText)
-local actionBody = createLabel(detailPanel, "Select a solo player to send an alliance invite.", UDim2.new(1, -20, 0, 16), UDim2.new(0, 10, 0, 162), THEME.FontBody, 12, THEME.Text)
+UIStyle.createLabel(detailPanel, "ACTION", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 142), THEME.FontMain, 11, THEME.SubText)
+local actionBody = UIStyle.createLabel(detailPanel, "Select a solo player to send an alliance invite.", UDim2.new(1, -20, 0, 16), UDim2.new(0, 10, 0, 162), THEME.FontBody, 12, THEME.Text)
 local inviteBtn = createButton(detailPanel, "SEND INVITE", UDim2.new(0, 126, 0, 28), UDim2.new(0, 10, 0, 186), "secondary")
 
 local alliedPanel = Instance.new("Frame")
@@ -195,7 +180,7 @@ alliedPanel.BorderSizePixel = 0
 alliedPanel.Parent = detailPanel
 UIStyle.applyPanel(alliedPanel, "background")
 
-createLabel(alliedPanel, "CURRENT ALLIANCE", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 10), THEME.FontMain, 11, THEME.SubText)
+UIStyle.createLabel(alliedPanel, "CURRENT ALLIANCE", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 10), THEME.FontMain, 11, THEME.SubText)
 
 local alliesList = Instance.new("ScrollingFrame")
 alliesList.Size = UDim2.new(1, -20, 1, -34)
@@ -219,8 +204,8 @@ local function createModal(name, titleText, primaryLabel, secondaryLabel, primar
 	frame.Parent = screen
 	UIStyle.applyPanel(frame, "background")
 
-	createLabel(frame, titleText, UDim2.new(1, -20, 0, 20), UDim2.new(0, 10, 0, 14), THEME.FontHeader, 18, THEME.Text, Enum.TextXAlignment.Center)
-	local body = createLabel(frame, "", UDim2.new(1, -24, 0, 44), UDim2.new(0, 12, 0, 46), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Center)
+	UIStyle.createLabel(frame, titleText, UDim2.new(1, -20, 0, 20), UDim2.new(0, 10, 0, 14), THEME.FontHeader, 18, THEME.Text, Enum.TextXAlignment.Center)
+	local body = UIStyle.createLabel(frame, "", UDim2.new(1, -24, 0, 44), UDim2.new(0, 12, 0, 46), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Center)
 	body.TextWrapped = true
 	local primary = createButton(frame, primaryLabel, UDim2.new(0.45, -6, 0, 28), UDim2.new(0.05, 0, 1, -40), primaryKind)
 	local secondary = createButton(frame, secondaryLabel, UDim2.new(0.45, -6, 0, 28), UDim2.new(0.5, 6, 1, -40), secondaryKind)
@@ -292,15 +277,15 @@ local function rebuildAllies()
 			row.Parent = alliesList
 			UIStyle.applyPanel(row, "panel")
 
-			createLabel(row, target.Name, UDim2.new(0.6, -10, 1, 0), UDim2.new(0, 8, 0, 0), THEME.FontMain, 12, THEME.Text)
-			createLabel(row, "$" .. tostring(readNestedInt(target, "Stats", "Credits")), UDim2.new(0.4, -8, 1, 0), UDim2.new(0.6, 0, 0, 0), THEME.FontBody, 11, THEME.SubText, Enum.TextXAlignment.Right)
+			UIStyle.createLabel(row, target.Name, UDim2.new(0.6, -10, 1, 0), UDim2.new(0, 8, 0, 0), THEME.FontMain, 12, THEME.Text)
+			UIStyle.createLabel(row, "$" .. tostring(readNestedInt(target, "Stats", "Credits")), UDim2.new(0.4, -8, 1, 0), UDim2.new(0.6, 0, 0, 0), THEME.FontBody, 11, THEME.SubText, Enum.TextXAlignment.Right)
 		end
 	end
 
 	summaryText.Text = (myAlliance and ("Alliance: " .. tostring(myAlliance)) or "Alliance: Solo") .. "  |  Allies online: " .. tostring(math.max(0, allyCount - 1))
 
 	if allyCount == 0 then
-		local empty = createLabel(alliesList, "No allies yet.", UDim2.new(1, 0, 0, 18), UDim2.new(), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Center)
+		local empty = UIStyle.createLabel(alliesList, "No allies yet.", UDim2.new(1, 0, 0, 18), UDim2.new(), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Center)
 		empty.LayoutOrder = 1
 	end
 end
@@ -321,9 +306,9 @@ local function rebuildRoster()
 		UIStyle.applyButton(row, target == selectedPlayer and "primary" or "secondary")
 
 		local statusText, statusColor = getPlayerStatus(target)
-		createLabel(row, target.Name, UDim2.new(1, -104, 0, 16), UDim2.new(0, 8, 0, 6), THEME.FontMain, 12, THEME.Text)
-		createLabel(row, string.format("$%d  |  +%d  |  %d units", readNestedInt(target, "Stats", "Credits"), readNestedInt(target, "PlayerStats", "Income"), readNestedInt(target, "PlayerStats", "CurrentUnits")), UDim2.new(1, -104, 0, 14), UDim2.new(0, 8, 0, 24), THEME.FontBody, 10, THEME.SubText)
-		createLabel(row, statusText, UDim2.new(0, 88, 0, 14), UDim2.new(1, -96, 0.5, -7), THEME.FontMain, 10, statusColor, Enum.TextXAlignment.Right)
+		UIStyle.createLabel(row, target.Name, UDim2.new(1, -104, 0, 16), UDim2.new(0, 8, 0, 6), THEME.FontMain, 12, THEME.Text)
+		UIStyle.createLabel(row, string.format("$%d  |  +%d  |  %d units", readNestedInt(target, "Stats", "Credits"), readNestedInt(target, "PlayerStats", "Income"), readNestedInt(target, "PlayerStats", "CurrentUnits")), UDim2.new(1, -104, 0, 14), UDim2.new(0, 8, 0, 24), THEME.FontBody, 10, THEME.SubText)
+		UIStyle.createLabel(row, statusText, UDim2.new(0, 88, 0, 14), UDim2.new(1, -96, 0.5, -7), THEME.FontMain, 10, statusColor, Enum.TextXAlignment.Right)
 
 		row.MouseButton1Click:Connect(function()
 			selectedPlayer = target

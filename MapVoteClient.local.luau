@@ -42,22 +42,8 @@ root.Position = UDim2.new(0.5, 0, 0, 70)
 root.BackgroundTransparency = 1
 root.Parent = screenGui
 
-local function createLabel(parent, text, size, position, font, textSize, color, align)
-	local label = Instance.new("TextLabel")
-	label.Size = size
-	label.Position = position
-	label.BackgroundTransparency = 1
-	label.Text = text or ""
-	label.TextColor3 = color or THEME.Text
-	label.Font = font or THEME.FontBody
-	label.TextSize = textSize or 14
-	label.TextXAlignment = align or Enum.TextXAlignment.Left
-	label.Parent = parent
-	return label
-end
-
-createLabel(root, "MAP VOTE", UDim2.new(1, 0, 0, 24), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 24, THEME.Text, Enum.TextXAlignment.Center)
-local subtitle = createLabel(root, "Choose the next battlefield", UDim2.new(1, 0, 0, 16), UDim2.new(0, 0, 0, 28), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Center)
+UIStyle.createLabel(root, "MAP VOTE", UDim2.new(1, 0, 0, 24), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 24, THEME.Text, Enum.TextXAlignment.Center)
+local subtitle = UIStyle.createLabel(root, "Choose the next battlefield", UDim2.new(1, 0, 0, 16), UDim2.new(0, 0, 0, 28), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Center)
 
 local timerLabel = Instance.new("TextLabel")
 timerLabel.Size = UDim2.new(0, 190, 0, 28)
@@ -129,25 +115,25 @@ local function createCard(index)
 	previewShade.BorderSizePixel = 0
 	previewShade.Parent = previewFrame
 
-	local previewFallback = createLabel(previewFrame, "PREVIEW UNAVAILABLE", UDim2.new(1, -16, 0, 18), UDim2.new(0, 8, 0.5, -9), THEME.FontMain, 11, THEME.SubText, Enum.TextXAlignment.Center)
+	local previewFallback = UIStyle.createLabel(previewFrame, "PREVIEW UNAVAILABLE", UDim2.new(1, -16, 0, 18), UDim2.new(0, 8, 0.5, -9), THEME.FontMain, 11, THEME.SubText, Enum.TextXAlignment.Center)
 	previewFallback.Name = "PreviewFallback"
 
-	local nameLabel = createLabel(card, "MAP NAME", UDim2.new(1, -16, 0, 22), UDim2.new(0, 10, 0, 178), THEME.FontHeader, 18, THEME.Text)
+	local nameLabel = UIStyle.createLabel(card, "MAP NAME", UDim2.new(1, -16, 0, 22), UDim2.new(0, 10, 0, 178), THEME.FontHeader, 18, THEME.Text)
 	nameLabel.Name = "NameLabel"
-	local sizeLabel = createLabel(card, "SIZE TBD", UDim2.new(1, -16, 0, 14), UDim2.new(0, 10, 0, 204), THEME.FontBody, 11, THEME.SubText)
+	local sizeLabel = UIStyle.createLabel(card, "SIZE TBD", UDim2.new(1, -16, 0, 14), UDim2.new(0, 10, 0, 204), THEME.FontBody, 11, THEME.SubText)
 	sizeLabel.Name = "SizeLabel"
-	local percentLabel = createLabel(card, "0%", UDim2.new(0.42, -10, 0, 22), UDim2.new(0, 10, 0, 230), THEME.FontHeader, 22, THEME.Text)
+	local percentLabel = UIStyle.createLabel(card, "0%", UDim2.new(0.42, -10, 0, 22), UDim2.new(0, 10, 0, 230), THEME.FontHeader, 22, THEME.Text)
 	percentLabel.Name = "PercentLabel"
-	local bodyLabel = createLabel(card, "Vote to select this map.", UDim2.new(1, -16, 0, 44), UDim2.new(0, 10, 0, 258), THEME.FontBody, 12, THEME.SubText)
+	local bodyLabel = UIStyle.createLabel(card, "Vote to select this map.", UDim2.new(1, -16, 0, 44), UDim2.new(0, 10, 0, 258), THEME.FontBody, 12, THEME.SubText)
 	bodyLabel.Name = "BodyLabel"
 	bodyLabel.TextWrapped = true
 	bodyLabel.TextYAlignment = Enum.TextYAlignment.Top
 
-	local voteMarker = createLabel(card, "YOUR VOTE", UDim2.new(0, 90, 0, 16), UDim2.new(1, -100, 0, 232), THEME.FontMain, 10, THEME.Positive, Enum.TextXAlignment.Right)
+	local voteMarker = UIStyle.createLabel(card, "YOUR VOTE", UDim2.new(0, 90, 0, 16), UDim2.new(1, -100, 0, 232), THEME.FontMain, 10, THEME.Positive, Enum.TextXAlignment.Right)
 	voteMarker.Name = "VoteMarker"
 	voteMarker.Visible = false
 
-	local lockedOverlay = createLabel(card, "UNAVAILABLE", UDim2.new(1, -16, 0, 16), UDim2.new(0, 10, 1, -22), THEME.FontMain, 10, THEME.Negative, Enum.TextXAlignment.Left)
+	local lockedOverlay = UIStyle.createLabel(card, "UNAVAILABLE", UDim2.new(1, -16, 0, 16), UDim2.new(0, 10, 1, -22), THEME.FontMain, 10, THEME.Negative, Enum.TextXAlignment.Left)
 	lockedOverlay.Name = "LockedOverlay"
 	lockedOverlay.Visible = false
 

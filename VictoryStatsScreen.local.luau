@@ -9,20 +9,6 @@ local victoryEvent = ReplicatedStorage:WaitForChild("ShowVictoryStats")
 
 local THEME = UIStyle.Theme
 
-local function createLabel(parent, text, size, position, font, textSize, color, align)
-	local label = Instance.new("TextLabel")
-	label.Size = size
-	label.Position = position
-	label.BackgroundTransparency = 1
-	label.Text = text or ""
-	label.TextColor3 = color or THEME.Text
-	label.Font = font or THEME.FontBody
-	label.TextSize = textSize or 14
-	label.TextXAlignment = align or Enum.TextXAlignment.Left
-	label.Parent = parent
-	return label
-end
-
 local function createButton(parent, text, size, position, kind)
 	local button = Instance.new("TextButton")
 	button.Size = size
@@ -60,12 +46,12 @@ mainFrame.BorderSizePixel = 0
 mainFrame.Parent = screenGui
 UIStyle.applyPanel(mainFrame, "background")
 
-createLabel(mainFrame, "MATCH REPORT", UDim2.new(1, -120, 0, 20), UDim2.new(0, 14, 0, 14), THEME.FontHeader, 22, THEME.Text)
-createLabel(mainFrame, "Simple round summary for you and the lobby leaders.", UDim2.new(1, -120, 0, 14), UDim2.new(0, 14, 0, 40), THEME.FontMain, 12, THEME.Text)
+UIStyle.createLabel(mainFrame, "MATCH REPORT", UDim2.new(1, -120, 0, 20), UDim2.new(0, 14, 0, 14), THEME.FontHeader, 22, THEME.Text)
+UIStyle.createLabel(mainFrame, "Simple round summary for you and the lobby leaders.", UDim2.new(1, -120, 0, 14), UDim2.new(0, 14, 0, 40), THEME.FontMain, 12, THEME.Text)
 local closeButton = createButton(mainFrame, "CLOSE", UDim2.new(0, 80, 0, 28), UDim2.new(1, -94, 0, 14), "secondary")
 UIStyle.createDivider(mainFrame, 64, 1)
 
-local winnersLabel = createLabel(mainFrame, "-", UDim2.new(1, -28, 0, 26), UDim2.new(0, 14, 0, 78), THEME.FontHeader, 24, THEME.Text)
+local winnersLabel = UIStyle.createLabel(mainFrame, "-", UDim2.new(1, -28, 0, 26), UDim2.new(0, 14, 0, 78), THEME.FontHeader, 24, THEME.Text)
 
 local personalFrame = Instance.new("Frame")
 personalFrame.Size = UDim2.new(0.5, -18, 1, -142)
@@ -99,8 +85,8 @@ local function createMetricRow(parent, titleText, valueText)
 	row.BorderSizePixel = 0
 	row.Parent = parent
 	UIStyle.applyPanel(row, "panel")
-	createLabel(row, string.upper(titleText), UDim2.new(0.55, -8, 1, 0), UDim2.new(0, 8, 0, 0), THEME.FontMain, 11, THEME.SubText)
-	createLabel(row, tostring(valueText), UDim2.new(0.45, -8, 1, 0), UDim2.new(0.55, 0, 0, 0), THEME.FontHeader, 18, THEME.Text, Enum.TextXAlignment.Right)
+	UIStyle.createLabel(row, string.upper(titleText), UDim2.new(0.55, -8, 1, 0), UDim2.new(0, 8, 0, 0), THEME.FontMain, 11, THEME.SubText)
+	UIStyle.createLabel(row, tostring(valueText), UDim2.new(0.45, -8, 1, 0), UDim2.new(0.55, 0, 0, 0), THEME.FontHeader, 18, THEME.Text, Enum.TextXAlignment.Right)
 end
 
 local function createLeaderRow(parent, titleText, playerName, valueText)
@@ -109,9 +95,9 @@ local function createLeaderRow(parent, titleText, playerName, valueText)
 	row.BorderSizePixel = 0
 	row.Parent = parent
 	UIStyle.applyPanel(row, "panel")
-	createLabel(row, string.upper(titleText), UDim2.new(1, -16, 0, 14), UDim2.new(0, 8, 0, 6), THEME.FontMain, 11, THEME.SubText)
-	createLabel(row, tostring(playerName), UDim2.new(0.62, -8, 0, 18), UDim2.new(0, 8, 0, 26), THEME.FontHeader, 16, THEME.Text)
-	createLabel(row, tostring(valueText), UDim2.new(0.38, -8, 0, 18), UDim2.new(0.62, 0, 0, 26), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Right)
+	UIStyle.createLabel(row, string.upper(titleText), UDim2.new(1, -16, 0, 14), UDim2.new(0, 8, 0, 6), THEME.FontMain, 11, THEME.SubText)
+	UIStyle.createLabel(row, tostring(playerName), UDim2.new(0.62, -8, 0, 18), UDim2.new(0, 8, 0, 26), THEME.FontHeader, 16, THEME.Text)
+	UIStyle.createLabel(row, tostring(valueText), UDim2.new(0.38, -8, 0, 18), UDim2.new(0.62, 0, 0, 26), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Right)
 end
 
 local function getGlobalEntry(globalMost, key)
@@ -163,8 +149,8 @@ victoryEvent.OnClientEvent:Connect(function(data)
 	clearRows(personalFrame)
 	clearRows(globalFrame)
 
-	createLabel(personalFrame, "YOUR REPORT", UDim2.new(1, 0, 0, 16), UDim2.new(), THEME.FontMain, 11, THEME.SubText)
-	createLabel(globalFrame, "ROUND LEADERS", UDim2.new(1, 0, 0, 16), UDim2.new(), THEME.FontMain, 11, THEME.SubText)
+	UIStyle.createLabel(personalFrame, "YOUR REPORT", UDim2.new(1, 0, 0, 16), UDim2.new(), THEME.FontMain, 11, THEME.SubText)
+	UIStyle.createLabel(globalFrame, "ROUND LEADERS", UDim2.new(1, 0, 0, 16), UDim2.new(), THEME.FontMain, 11, THEME.SubText)
 
 	local mine = findPersonalStats(data)
 	createMetricRow(personalFrame, "Money Spent", mine and (mine.moneySpent or 0) or 0)
