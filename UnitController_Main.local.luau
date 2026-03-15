@@ -31,6 +31,8 @@ local FORMATION_SPACING = 3.2
 local FORMATION_DEPTH_SPACING = 2.7
 local THEME = UIStyle.Theme
 
+local sharedRaycastParams = RaycastParams.new()
+
 -- Remote events
 local AttackEffect = ReplicatedStorage:WaitForChild("AttackEffect")
 local MoveCommand = ReplicatedStorage:WaitForChild("MoveCommand")
@@ -805,7 +807,6 @@ end
 
 local function getMouseGroundPos()
 	local ray = player:GetMouse().UnitRay
-	local params = RaycastParams.new()
 	local ignoreList = {player.Character}
 	if ghostFolder then
 		table.insert(ignoreList, ghostFolder)
@@ -819,9 +820,9 @@ local function getMouseGroundPos()
 		if buildings then table.insert(ignoreList, buildings) end
 		if walls then table.insert(ignoreList, walls) end
 	end
-	params.FilterDescendantsInstances = ignoreList
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	local result = workspace:Raycast(ray.Origin, ray.Direction * 2000, params)
+	sharedRaycastParams.FilterDescendantsInstances = ignoreList
+	sharedRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	local result = workspace:Raycast(ray.Origin, ray.Direction * 2000, sharedRaycastParams)
 	if result then
 		return result.Position
 	end
@@ -829,8 +830,7 @@ local function getMouseGroundPos()
 end
 
 local function getGroundAtXZ(x, z, fallbackY)
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
+	sharedRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
 	local ignoreList = {player.Character}
 	if ghostFolder then
 		table.insert(ignoreList, ghostFolder)
@@ -844,9 +844,9 @@ local function getGroundAtXZ(x, z, fallbackY)
 		if buildings then table.insert(ignoreList, buildings) end
 		if walls then table.insert(ignoreList, walls) end
 	end
-	params.FilterDescendantsInstances = ignoreList
+	sharedRaycastParams.FilterDescendantsInstances = ignoreList
 	local originY = (fallbackY or 0) + 220
-	local result = workspace:Raycast(Vector3.new(x, originY, z), Vector3.new(0, -520, 0), params)
+	local result = workspace:Raycast(Vector3.new(x, originY, z), Vector3.new(0, -520, 0), sharedRaycastParams)
 	if result then
 		return result.Position.Y
 	end

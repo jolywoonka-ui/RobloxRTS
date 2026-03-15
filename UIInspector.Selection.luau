@@ -12,6 +12,8 @@ local mapFolderRemovingConn = nil
 local currentMapAddedConn = nil
 local currentMapRemovedConn = nil
 
+local sharedRaycastParams = RaycastParams.new()
+
 local function clearMapPartsCache()
 	table.clear(mapPartsCache)
 	table.clear(mapPartsSet)
@@ -113,17 +115,16 @@ end)
 function module.getGroundY(pos)
 	local rayOrigin = pos + Vector3.new(0, 200, 0)
 	local rayDir = Vector3.new(0, -400, 0)
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Include
-	params.FilterDescendantsInstances = mapPartsCache
+	sharedRaycastParams.FilterType = Enum.RaycastFilterType.Include
+	sharedRaycastParams.FilterDescendantsInstances = mapPartsCache
 
-	local result = workspace:Raycast(rayOrigin, rayDir, params)
+	local result = workspace:Raycast(rayOrigin, rayDir, sharedRaycastParams)
 	if result then
 		return result.Position.Y
 	end
 
-	params.FilterDescendantsInstances = {workspace.Terrain}
-	result = workspace:Raycast(rayOrigin, rayDir, params)
+	sharedRaycastParams.FilterDescendantsInstances = {workspace.Terrain}
+	result = workspace:Raycast(rayOrigin, rayDir, sharedRaycastParams)
 	return result and result.Position.Y or pos.Y - 1
 end
 

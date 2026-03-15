@@ -18,6 +18,8 @@ local lastBuildingClick = nil
 local lastBuildingClickTime = 0
 local DOUBLE_CLICK_WINDOW = 0.35
 
+local sharedRaycastParams = RaycastParams.new()
+
 local function isCtrlDown()
 	return UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
 end
@@ -97,10 +99,9 @@ local function onInputBegan(input, g)
 			return
 		end
 		local ray = mouse.UnitRay
-		local params = RaycastParams.new()
-		params.FilterDescendantsInstances = {player.Character}
-		params.FilterType = Enum.RaycastFilterType.Exclude
-		local res = workspace:Raycast(ray.Origin, ray.Direction * 1000, params)
+		sharedRaycastParams.FilterDescendantsInstances = {player.Character}
+		sharedRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
+		local res = workspace:Raycast(ray.Origin, ray.Direction * 1000, sharedRaycastParams)
 		local ctrlDown = isCtrlDown()
 
 		if res and res.Instance then

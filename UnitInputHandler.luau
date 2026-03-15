@@ -29,6 +29,8 @@ local lastUnitClick = nil
 local lastUnitClickTime = 0
 local DOUBLE_CLICK_WINDOW = 0.35
 
+local sharedRaycastParams = RaycastParams.new()
+
 
 function InputHandler.setFormation(formation)
 	currentFormation = formation
@@ -156,7 +158,6 @@ local function onInputBegan(input, gameProcessed)
 		local selected = Selection.getSelected()
 		if #selected > 0 then
 			local ray = mouse.UnitRay
-			local params = RaycastParams.new()
 			local ignore = {player.Character}
 
 			local visuals = {
@@ -184,10 +185,10 @@ local function onInputBegan(input, gameProcessed)
 				table.insert(ignore, u)
 			end
 
-			params.FilterDescendantsInstances = ignore
-			params.FilterType = Enum.RaycastFilterType.Exclude
+			sharedRaycastParams.FilterDescendantsInstances = ignore
+			sharedRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
-			local res = workspace:Raycast(ray.Origin, ray.Direction * 2000, params)
+			local res = workspace:Raycast(ray.Origin, ray.Direction * 2000, sharedRaycastParams)
 			if res then
 				if not isGroundHit(res) then
 					if PathVisuals and PathVisuals.showError then
@@ -254,10 +255,9 @@ local function onInputEnded(input)
 			end
 		else
 			local ray = mouse.UnitRay
-			local params = RaycastParams.new()
-			params.FilterDescendantsInstances = {player.Character}
-			params.FilterType = Enum.RaycastFilterType.Exclude
-			local res = workspace:Raycast(ray.Origin, ray.Direction * 2000, params)
+			sharedRaycastParams.FilterDescendantsInstances = {player.Character}
+			sharedRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
+			local res = workspace:Raycast(ray.Origin, ray.Direction * 2000, sharedRaycastParams)
 			local selectedUnit = nil
 
 			if res and res.Instance then
