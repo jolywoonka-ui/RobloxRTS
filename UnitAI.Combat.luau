@@ -25,13 +25,10 @@ local damageModuleScript: ModuleScript? = findModule(ServerStorage, "DamageServi
 	or findModule(script.Parent.Parent, "DamageService")
 	or findModule(ReplicatedStorage, "DamageService")
 
-local DamageService
-if damageModuleScript then
-	DamageService = require(damageModuleScript)
-else
-	warn("UnitAI.Combat: DamageService module not found, using shared fallback")
-	DamageService = require(script.Parent:WaitForChild("DamageServiceFallback", 5) or ReplicatedStorage:WaitForChild("DamageServiceFallback", 5))
+if not damageModuleScript then
+	error("UnitAI.Combat: DamageService module not found")
 end
+local DamageService = require(damageModuleScript)
 
 local WorldEffectEvent = ReplicatedStorage:WaitForChild("WorldEffectEvent")
 
