@@ -211,15 +211,17 @@ function UpgradeManager:completeUpgrade(building, data)
 		hum.Health = newData.Health * healthPercent
 	end
 
-	for _, part in pairs(newBuilding:GetDescendants()) do
+	local hasSetCollisionGroup = _G.setCollisionGroup ~= nil
+	for _, part in ipairs(newBuilding:GetDescendants()) do
 		if part:IsA("BasePart") then
 			part.Anchored = true
-			if _G.setCollisionGroup then
-				_G.setCollisionGroup(newBuilding, "Buildings")
-			else
+			if not hasSetCollisionGroup then
 				part.CollisionGroup = "Default"
 			end
 		end
+	end
+	if hasSetCollisionGroup then
+		_G.setCollisionGroup(newBuilding, "Buildings")
 	end
 
 	BuildingSpawner.addHealthBar(newBuilding)

@@ -372,15 +372,17 @@ function BuildingSpawner:spawn(player, name, cframe, isFree)
 	hum.Health = isInstant and data.Health or 100
 	hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
 
-	for _, p in pairs(b:GetDescendants()) do
+	local hasSetCollisionGroup = _G.setCollisionGroup ~= nil
+	for _, p in ipairs(b:GetDescendants()) do
 		if p:IsA("BasePart") then
 			p.Anchored = true
-			if _G.setCollisionGroup then
-				_G.setCollisionGroup(b, "Buildings")
-			else
+			if not hasSetCollisionGroup then
 				p.CollisionGroup = "Default"
 			end
 		end
+	end
+	if hasSetCollisionGroup then
+		_G.setCollisionGroup(b, "Buildings")
 	end
 
 	BuildingSpawner.addHealthBar(b)
