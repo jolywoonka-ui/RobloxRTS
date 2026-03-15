@@ -23,6 +23,8 @@ local selectionChangedCallbacks = {}
 local constantRangeIndicators = {}
 local showAllRanges = true
 
+local sharedRaycastParams = RaycastParams.new()
+
 local SELECTION_COLOR = Color3.new(1, 1, 1)
 local ENEMY_COLOR = Color3.fromRGB(255, 80, 80)
 
@@ -79,11 +81,10 @@ local function getGroundY(pos)
 
 	local rayOrigin = pos + Vector3.new(0, 200, 0)
 	local rayDir = Vector3.new(0, -400, 0)
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Include
-	params.FilterDescendantsInstances = targets
+	sharedRaycastParams.FilterType = Enum.RaycastFilterType.Include
+	sharedRaycastParams.FilterDescendantsInstances = targets
 
-	local result = workspace:Raycast(rayOrigin, rayDir, params)
+	local result = workspace:Raycast(rayOrigin, rayDir, sharedRaycastParams)
 	if result then
 		return result.Position.Y
 	end
