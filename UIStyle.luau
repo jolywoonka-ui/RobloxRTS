@@ -170,6 +170,20 @@ function UIStyle.createLabel(parent, text, size, position, font, textSize, color
 	return label
 end
 
+function UIStyle.createButton(parent, text, size, position, kind)
+	local theme = UIStyle.Theme
+	local button = Instance.new("TextButton")
+	button.Size = size
+	button.Position = position
+	button.Text = text
+	button.Parent = parent
+	UIStyle.applyButton(button, kind)
+	button.Font = theme.FontBody
+	button.TextSize = 13
+	button.TextTransparency = 0
+	return button
+end
+
 function UIStyle.applyHeaderLabel(label, size, align)
 	local theme = UIStyle.Theme
 	label.BackgroundTransparency = 1

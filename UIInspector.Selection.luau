@@ -11,7 +11,6 @@ local mapFolderAddedConn = nil
 local mapFolderRemovingConn = nil
 local currentMapAddedConn = nil
 local currentMapRemovedConn = nil
-local rebuildPending = false
 
 local function clearMapPartsCache()
 	table.clear(mapPartsCache)
@@ -59,17 +58,6 @@ local function rebuildMapPartsCache()
 	end
 end
 
-local function scheduleRebuildMapPartsCache()
-	if rebuildPending then
-		return
-	end
-	rebuildPending = true
-	task.delay(0.2, function()
-		rebuildPending = false
-		rebuildMapPartsCache()
-	end)
-end
-
 local function disconnectMapCacheConnections()
 	if mapFolderAddedConn then
 		mapFolderAddedConn:Disconnect()
@@ -97,16 +85,12 @@ local function bindMapCacheSignals()
 	mapFolderAddedConn = mapFolder.DescendantAdded:Connect(function(inst)
 		if inst:IsA("BasePart") then
 			addMapPart(inst)
-		else
-			scheduleRebuildMapPartsCache()
 		end
 	end)
 
 	mapFolderRemovingConn = mapFolder.DescendantRemoving:Connect(function(inst)
 		if inst:IsA("BasePart") then
 			removeMapPart(inst)
-		else
-			scheduleRebuildMapPartsCache()
 		end
 	end)
 end

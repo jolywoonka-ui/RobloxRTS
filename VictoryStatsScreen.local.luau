@@ -9,18 +9,6 @@ local victoryEvent = ReplicatedStorage:WaitForChild("ShowVictoryStats")
 
 local THEME = UIStyle.Theme
 
-local function createButton(parent, text, size, position, kind)
-	local button = Instance.new("TextButton")
-	button.Size = size
-	button.Position = position
-	button.Text = text
-	button.Parent = parent
-	UIStyle.applyButton(button, kind)
-	button.Font = THEME.FontMain
-	button.TextSize = 13
-	return button
-end
-
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "VictoryStatsScreen"
 screenGui.Enabled = false
@@ -48,7 +36,7 @@ UIStyle.applyPanel(mainFrame, "background")
 
 UIStyle.createLabel(mainFrame, "MATCH REPORT", UDim2.new(1, -120, 0, 20), UDim2.new(0, 14, 0, 14), THEME.FontHeader, 22, THEME.Text)
 UIStyle.createLabel(mainFrame, "Simple round summary for you and the lobby leaders.", UDim2.new(1, -120, 0, 14), UDim2.new(0, 14, 0, 40), THEME.FontMain, 12, THEME.Text)
-local closeButton = createButton(mainFrame, "CLOSE", UDim2.new(0, 80, 0, 28), UDim2.new(1, -94, 0, 14), "secondary")
+local closeButton = UIStyle.createButton(mainFrame, "CLOSE", UDim2.new(0, 80, 0, 28), UDim2.new(1, -94, 0, 14), "secondary")
 UIStyle.createDivider(mainFrame, 64, 1)
 
 local winnersLabel = UIStyle.createLabel(mainFrame, "-", UDim2.new(1, -28, 0, 26), UDim2.new(0, 14, 0, 78), THEME.FontHeader, 24, THEME.Text)

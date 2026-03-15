@@ -33,19 +33,6 @@ local function updateOpenButtonPosition()
 	end
 end
 
-local function createButton(parent, text, size, position, kind)
-	local button = Instance.new("TextButton")
-	button.Size = size
-	button.Position = position
-	button.Text = text
-	button.Parent = parent
-	UIStyle.applyButton(button, kind)
-	button.Font = THEME.FontBody
-	button.TextSize = 12
-	button.TextTransparency = 0
-	return button
-end
-
 local function readNestedInt(root, folderName, valueName)
 	local folder = root:FindFirstChild(folderName)
 	local valueObj = folder and folder:FindFirstChild(valueName)
@@ -87,7 +74,7 @@ screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screen.DisplayOrder = 50
 screen.Parent = playerGui
 
-openBtn = createButton(screen, "ALLIANCE", UDim2.new(0, 145, 0, 35), UDim2.new(0, 20, 1, -424), "secondary")
+openBtn = UIStyle.createButton(screen, "ALLIANCE", UDim2.new(0, 145, 0, 35), UDim2.new(0, 20, 1, -424), "secondary")
 openBtn.TextSize = 14
 openBtn.Visible = false
 
@@ -119,7 +106,7 @@ header.Parent = window
 
 UIStyle.createLabel(header, "ALLIANCE", UDim2.new(0, 180, 1, 0), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 20, THEME.Text)
 local summaryText = UIStyle.createLabel(header, "Alliance: Solo", UDim2.new(0, 280, 1, 0), UDim2.new(0, 150, 0, 0), THEME.FontMain, 12, THEME.Text)
-local closeX = createButton(header, "CLOSE", UDim2.new(0, 78, 0, 26), UDim2.new(1, -78, 0, 3), "secondary")
+local closeX = UIStyle.createButton(header, "CLOSE", UDim2.new(0, 78, 0, 26), UDim2.new(1, -78, 0, 3), "secondary")
 
 local rosterPanel = Instance.new("Frame")
 rosterPanel.Size = UDim2.new(0, 256, 1, -60)
@@ -171,7 +158,7 @@ UIStyle.createLabel(intelStrip, "UNITS", UDim2.new(0.33, -12, 0, 12), UDim2.new(
 
 UIStyle.createLabel(detailPanel, "ACTION", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 142), THEME.FontMain, 11, THEME.SubText)
 local actionBody = UIStyle.createLabel(detailPanel, "Select a solo player to send an alliance invite.", UDim2.new(1, -20, 0, 16), UDim2.new(0, 10, 0, 162), THEME.FontBody, 12, THEME.Text)
-local inviteBtn = createButton(detailPanel, "SEND INVITE", UDim2.new(0, 126, 0, 28), UDim2.new(0, 10, 0, 186), "secondary")
+local inviteBtn = UIStyle.createButton(detailPanel, "SEND INVITE", UDim2.new(0, 126, 0, 28), UDim2.new(0, 10, 0, 186), "secondary")
 
 local alliedPanel = Instance.new("Frame")
 alliedPanel.Size = UDim2.new(1, -20, 1, -232)
@@ -207,8 +194,8 @@ local function createModal(name, titleText, primaryLabel, secondaryLabel, primar
 	UIStyle.createLabel(frame, titleText, UDim2.new(1, -20, 0, 20), UDim2.new(0, 10, 0, 14), THEME.FontHeader, 18, THEME.Text, Enum.TextXAlignment.Center)
 	local body = UIStyle.createLabel(frame, "", UDim2.new(1, -24, 0, 44), UDim2.new(0, 12, 0, 46), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Center)
 	body.TextWrapped = true
-	local primary = createButton(frame, primaryLabel, UDim2.new(0.45, -6, 0, 28), UDim2.new(0.05, 0, 1, -40), primaryKind)
-	local secondary = createButton(frame, secondaryLabel, UDim2.new(0.45, -6, 0, 28), UDim2.new(0.5, 6, 1, -40), secondaryKind)
+	local primary = UIStyle.createButton(frame, primaryLabel, UDim2.new(0.45, -6, 0, 28), UDim2.new(0.05, 0, 1, -40), primaryKind)
+	local secondary = UIStyle.createButton(frame, secondaryLabel, UDim2.new(0.45, -6, 0, 28), UDim2.new(0.5, 6, 1, -40), secondaryKind)
 	return frame, body, primary, secondary
 end
 

@@ -11,6 +11,7 @@ local UnitSpawner = require(ServerStorage:WaitForChild("UnitSpawner"))
 local lastToggle = {}
 local UnitTransport = {}
 local LoadedUnitsByTransport = setmetatable({}, {__mode = "k"})
+local unitPartsCache = setmetatable({}, {__mode = "k"})
 local LoadedUnitsFolder = ReplicatedStorage:FindFirstChild("LoadedUnits")
 if not LoadedUnitsFolder then
 	LoadedUnitsFolder = Instance.new("Folder")
@@ -135,15 +136,26 @@ end
 
 local function setGroundKinematic(unit)
 	if not unit then return end
-	for _, part in pairs(unit:GetDescendants()) do
-		if part:IsA("BasePart") then
-			part.Anchored = true
-			part.CanCollide = false
-			part.CollisionGroup = "Units"
-			part.AssemblyLinearVelocity = Vector3.zero
-			part.AssemblyAngularVelocity = Vector3.zero
+
+	local parts = unitPartsCache[unit]
+	if not parts then
+		parts = {}
+		for _, part in ipairs(unit:GetDescendants()) do
+			if part:IsA("BasePart") then
+				table.insert(parts, part)
+			end
 		end
+		unitPartsCache[unit] = parts
 	end
+
+	for _, part in ipairs(parts) do
+		part.Anchored = true
+		part.CanCollide = false
+		part.CollisionGroup = "Units"
+		part.AssemblyLinearVelocity = Vector3.zero
+		part.AssemblyAngularVelocity = Vector3.zero
+	end
+
 	local root = unit:IsA("Model") and (unit.PrimaryPart or unit:FindFirstChildWhichIsA("BasePart")) or unit
 	if root then
 		for _, child in pairs(root:GetChildren()) do

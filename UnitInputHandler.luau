@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local MoveCommand = ReplicatedStorage:WaitForChild("MoveCommand")
 local UIInspector = require(ReplicatedStorage:WaitForChild("UIInspector"))
+local UIUtils = require(ReplicatedStorage:WaitForChild("UIUtils"))
 
 local InputHandler = {}
 
@@ -28,36 +29,6 @@ local lastUnitClick = nil
 local lastUnitClickTime = 0
 local DOUBLE_CLICK_WINDOW = 0.35
 
-local function isInteractiveGuiObject(guiObject)
-	if not guiObject or not guiObject.Visible then
-		return false
-	end
-	if guiObject:IsA("TextButton") or guiObject:IsA("ImageButton") or guiObject:IsA("TextBox") then
-		return true
-	end
-	if guiObject:IsA("ScrollingFrame") then
-		return true
-	end
-	if guiObject.Active then
-		return true
-	end
-	return false
-end
-
-local function isPointerOverGui()
-	local playerGui = player:FindFirstChild("PlayerGui")
-	if not playerGui then
-		return false
-	end
-	local mousePos = UserInputService:GetMouseLocation()
-	local guiObjects = playerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
-	for _, guiObject in ipairs(guiObjects) do
-		if isInteractiveGuiObject(guiObject) then
-			return true
-		end
-	end
-	return false
-end
 
 function InputHandler.setFormation(formation)
 	currentFormation = formation
@@ -172,7 +143,7 @@ local function onInputBegan(input, gameProcessed)
 	end
 
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		if isPointerOverGui() or (UIInspector.isPointerOverInspector and UIInspector.isPointerOverInspector()) then
+		if UIUtils.isPointerOverGui() or (UIInspector.isPointerOverInspector and UIInspector.isPointerOverInspector()) then
 			return
 		end
 		isDragging = true
@@ -261,7 +232,7 @@ local function onInputEnded(input)
 		return
 	end
 	if input.UserInputType == Enum.UserInputType.MouseButton1 and isDragging then
-		if isPointerOverGui() or (UIInspector.isPointerOverInspector and UIInspector.isPointerOverInspector()) then
+		if UIUtils.isPointerOverGui() or (UIInspector.isPointerOverInspector and UIInspector.isPointerOverInspector()) then
 			isDragging = false
 			dragFrame.Visible = false
 			return

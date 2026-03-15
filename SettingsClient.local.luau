@@ -91,19 +91,6 @@ local function saveKeybindSettings()
 	})
 end
 
-local function createButton(parent, text, size, position, kind)
-	local button = Instance.new("TextButton")
-	button.Size = size
-	button.Position = position
-	button.Text = text
-	button.Parent = parent
-	UIStyle.applyButton(button, kind)
-	button.Font = THEME.FontBody
-	button.TextSize = 13
-	button.TextTransparency = 0
-	return button
-end
-
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SettingsUI"
 screenGui.ResetOnSpawn = false
@@ -112,8 +99,8 @@ screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.DisplayOrder = 150
 screenGui.Parent = playerGui
 
-local settingsBtn = createButton(screenGui, "SYSTEM", UDim2.new(0, 70, 0, 28), UDim2.new(1, -82, 0, 14), "ghost")
-local faqBtn = createButton(screenGui, "MANUAL", UDim2.new(0, 70, 0, 28), UDim2.new(1, -158, 0, 14), "ghost")
+local settingsBtn = UIStyle.createButton(screenGui, "SYSTEM", UDim2.new(0, 70, 0, 28), UDim2.new(1, -82, 0, 14), "ghost")
+local faqBtn = UIStyle.createButton(screenGui, "MANUAL", UDim2.new(0, 70, 0, 28), UDim2.new(1, -158, 0, 14), "ghost")
 
 local overlay = Instance.new("TextButton")
 overlay.Size = UDim2.new(1, 0, 1, 0)
@@ -142,7 +129,7 @@ titleBar.BackgroundTransparency = 1
 titleBar.Parent = desk
 
 local deskTitle = UIStyle.createLabel(titleBar, "SYSTEM", UDim2.new(1, -90, 1, 0), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 24, THEME.Text)
-local closeBtn = createButton(titleBar, "CLOSE", UDim2.new(0, 82, 0, 26), UDim2.new(1, -82, 0, 3), "secondary")
+local closeBtn = UIStyle.createButton(titleBar, "CLOSE", UDim2.new(0, 82, 0, 26), UDim2.new(1, -82, 0, 3), "secondary")
 
 local navRail = Instance.new("Frame")
 navRail.Size = UDim2.new(1, -20, 0, 32)
@@ -192,7 +179,7 @@ local function setNavActive(name)
 end
 
 local function addNavButton(name, caption)
-	local button = createButton(navRail, caption, UDim2.new(0, 120, 1, 0), UDim2.new(), "secondary")
+	local button = UIStyle.createButton(navRail, caption, UDim2.new(0, 120, 1, 0), UDim2.new(), "secondary")
 	button.MouseButton1Click:Connect(function()
 		setNavActive(name)
 	end)
@@ -215,7 +202,7 @@ local function createSectionCard(parent, titleText, bodyText, size, position)
 end
 
 local function createRowButton(row, settingName)
-	local button = createButton(row, KeybindConfig[settingName], UDim2.new(0, 92, 0, 26), UDim2.new(1, -100, 0.5, -13), "secondary")
+	local button = UIStyle.createButton(row, KeybindConfig[settingName], UDim2.new(0, 92, 0, 26), UDim2.new(1, -100, 0.5, -13), "secondary")
 	button.MouseButton1Click:Connect(function()
 		button.Text = "..."
 		local connection
@@ -238,7 +225,7 @@ local function createRowButton(row, settingName)
 end
 
 local function createToggleButton(row, state, callback)
-	local button = createButton(row, state and "ON" or "OFF", UDim2.new(0, 92, 0, 26), UDim2.new(1, -100, 0.5, -13), state and "success" or "danger")
+	local button = UIStyle.createButton(row, state and "ON" or "OFF", UDim2.new(0, 92, 0, 26), UDim2.new(1, -100, 0.5, -13), state and "success" or "danger")
 	button.MouseButton1Click:Connect(function()
 		state = not state
 		button.Text = state and "ON" or "OFF"
@@ -423,7 +410,7 @@ local function buildManualPage()
 	for index, section in ipairs(MANUAL_SECTIONS) do
 		manualPages[section.Title] = section
 
-		local button = createButton(categoryRail, string.upper(section.Title), UDim2.new(1, 0, 0, 32), UDim2.new(), "secondary")
+		local button = UIStyle.createButton(categoryRail, string.upper(section.Title), UDim2.new(1, 0, 0, 32), UDim2.new(), "secondary")
 		button.LayoutOrder = index
 		button.MouseButton1Click:Connect(function()
 			setManualSection(section.Title)
@@ -486,8 +473,8 @@ UIStyle.createLabel(tipPopup, "FIELD MANUAL", UDim2.new(1, -24, 0, 16), UDim2.ne
 local promptText = UIStyle.createLabel(tipPopup, "Open MANUAL in the top-right corner for the controls and game systems.", UDim2.new(1, -24, 0, 34), UDim2.new(0, 12, 0, 28), THEME.FontBody, 13, THEME.Text)
 promptText.TextWrapped = true
 
-local openManualBtn = createButton(tipPopup, "OPEN", UDim2.new(0, 78, 0, 24), UDim2.new(0, 12, 1, -34), "primary")
-local dismissPromptBtn = createButton(tipPopup, "DISMISS", UDim2.new(0, 92, 0, 24), UDim2.new(1, -104, 1, -34), "secondary")
+local openManualBtn = UIStyle.createButton(tipPopup, "OPEN", UDim2.new(0, 78, 0, 24), UDim2.new(0, 12, 1, -34), "primary")
+local dismissPromptBtn = UIStyle.createButton(tipPopup, "DISMISS", UDim2.new(0, 92, 0, 24), UDim2.new(1, -104, 1, -34), "secondary")
 
 local function hidePrompt()
 	if not tipPopup or not tipPopup.Parent then

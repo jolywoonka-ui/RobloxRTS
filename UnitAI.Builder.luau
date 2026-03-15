@@ -5,6 +5,21 @@ local Players = game:GetService("Players")
 
 local State
 
+local buildingPartsCache = setmetatable({}, {__mode = "k"})
+
+local function getBuildingParts(building)
+	if not buildingPartsCache[building] then
+		local parts = {}
+		for _, p in ipairs(building:GetDescendants()) do
+			if p:IsA("BasePart") then
+				table.insert(parts, p)
+			end
+		end
+		buildingPartsCache[building] = parts
+	end
+	return buildingPartsCache[building]
+end
+
 function module.init(deps)
 	deps = deps or {}
 	Players = deps.Players or Players
@@ -68,11 +83,9 @@ function module.tryBuild(builder, dt, attackEffect, config)
 		local hum = bestTarget:FindFirstChild("Humanoid")
 		if hum then hum.Health = hum.MaxHealth end
 
-		for _, p in pairs(bestTarget:GetDescendants()) do
-			if p:IsA("BasePart") then
-				p.Transparency = 0
-				p.CanCollide = true
-			end
+		for _, p in ipairs(getBuildingParts(bestTarget)) do
+			p.Transparency = 0
+			p.CanCollide = true
 		end
 
 		local ui = bestTarget:FindFirstChild("BuildProgressUI")
