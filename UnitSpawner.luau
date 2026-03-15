@@ -10,13 +10,39 @@ local UnitPhysics = require(ServerStorage:WaitForChild("UnitPhysics"))
 local UnitSpawner = {}
 local AIR_HEIGHT_FACTOR = 0.75
 
+local UnitCache = {}
+
+local function getUnitCache(template)
+	local cache = UnitCache[template.Name]
+	if cache then return cache end
+
+	cache = {
+		allParts = {},
+		teamPaints = {}
+	}
+
+	for i, part in ipairs(template:GetDescendants()) do
+		if part:IsA("BasePart") then
+			table.insert(cache.allParts, i)
+			if part.Name == "TeamPaint" then
+				table.insert(cache.teamPaints, i)
+			end
+		end
+	end
+
+	UnitCache[template.Name] = cache
+	return cache
+end
+
 -- ÃÂ¤Ã‘Æ’ÃÂ½ÃÂºÃ‘â€ ÃÂ¸Ã‘Â ÃÂ¿ÃÂ¾ÃÂºÃ‘â‚¬ÃÂ°Ã‘ÂÃÂºÃÂ¸ ÃÂ² Ã‘â€ ÃÂ²ÃÂµÃ‘â€š ÃÂºÃÂ¾ÃÂ¼ÃÂ°ÃÂ½ÃÂ´Ã‘â€¹
-local function applyTeamColor(model, player)
+local function applyTeamColor(descendants, player, cache)
 	if not player then return end
 	local teamColor = player:GetAttribute("TeamColor")
 	if not teamColor then return end
-	for _, part in pairs(model:GetDescendants()) do
-		if part:IsA("BasePart") and part.Name == "TeamPaint" then
+
+	for _, idx in ipairs(cache.teamPaints) do
+		local part = descendants[idx]
+		if part then
 			part.Color = teamColor
 		end
 	end
@@ -125,6 +151,7 @@ function UnitSpawner.spawnNeutral(building, unitName)
 
 	local unit = template:Clone()
 	unit.Name = unitName
+	local unitCache = getUnitCache(template)
 
 	local spawnCFrame = getSpawnCFrame(building)
 	local safeCFrame
@@ -143,10 +170,12 @@ function UnitSpawner.spawnNeutral(building, unitName)
 	end
 	if not root then unit:Destroy() return end
 
+	local descendants = unit:GetDescendants()
 	if uData.Class == "Air" then
 		-- Ãâ€™ÃÂ¾ÃÂ·ÃÂ´Ã‘Æ’Ã‘Ë†ÃÂ½Ã‘â€¹ÃÂµ: ÃÂ·ÃÂ°ÃÂ°ÃÂ½ÃÂºÃÂµÃ‘â‚¬ÃÂµÃÂ½Ã‘â€¹
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
+		for _, idx in ipairs(unitCache.allParts) do
+			local p = descendants[idx]
+			if p then
 				p.Anchored = true
 				p.CanCollide = false
 				p.CollisionGroup = "AirUnits"
@@ -154,8 +183,9 @@ function UnitSpawner.spawnNeutral(building, unitName)
 		end
 	else
 		-- ÃÂÃÂ°ÃÂ·ÃÂµÃÂ¼ÃÂ½Ã‘â€¹ÃÂµ: ÃÂ½ÃÂµ ÃÂ·ÃÂ°ÃÂ°ÃÂ½ÃÂºÃÂµÃ‘â‚¬ÃÂµÃÂ½Ã‘â€¹, ÃÂ½ÃÂ¾ Ã‘Â ÃÂ°ÃÂ½Ã‘â€šÃÂ¸ÃÂ³Ã‘â‚¬ÃÂ°ÃÂ²ÃÂ¸Ã‘â€šÃÂ°Ã‘â€ ÃÂ¸ÃÂµÃÂ¹
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
+		for _, idx in ipairs(unitCache.allParts) do
+			local p = descendants[idx]
+			if p then
 				p.Anchored = true
 				p.CanCollide = false
 				p.CollisionGroup = "Units"
@@ -234,6 +264,7 @@ function UnitSpawner.spawnPlayer(player, building, unitName, supplyAlreadyReserv
 
 	local unit = template:Clone()
 	unit.Name = unitName
+	local unitCache = getUnitCache(template)
 
 	local spawnCFrame = getSpawnCFrame(building)
 	local safeCFrame
@@ -252,19 +283,22 @@ function UnitSpawner.spawnPlayer(player, building, unitName, supplyAlreadyReserv
 	end
 	if not root then unit:Destroy() return end
 
-	applyTeamColor(unit, player)
+	local descendants = unit:GetDescendants()
+	applyTeamColor(descendants, player, unitCache)
 
 	if uData.Class == "Air" then
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
+		for _, idx in ipairs(unitCache.allParts) do
+			local p = descendants[idx]
+			if p then
 				p.Anchored = true
 				p.CanCollide = false
 				p.CollisionGroup = "AirUnits"
 			end
 		end
 	else
-		for _, p in pairs(unit:GetDescendants()) do
-			if p:IsA("BasePart") then
+		for _, idx in ipairs(unitCache.allParts) do
+			local p = descendants[idx]
+			if p then
 				p.Anchored = true
 				p.CanCollide = false
 				p.CollisionGroup = "Units"
