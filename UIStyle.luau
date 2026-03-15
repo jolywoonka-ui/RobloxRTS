@@ -1,0 +1,193 @@
+local UIStyle = {}
+
+UIStyle.Theme = {
+	Background = Color3.fromRGB(38, 39, 44),
+	Panel = Color3.fromRGB(44, 45, 51),
+	PanelAlt = Color3.fromRGB(33, 34, 39),
+	PanelSoft = Color3.fromRGB(50, 52, 58),
+	Card = Color3.fromRGB(35, 36, 41),
+	CardAlt = Color3.fromRGB(42, 43, 49),
+	CardSoft = Color3.fromRGB(28, 125, 228),
+	Inset = Color3.fromRGB(28, 29, 34),
+	Accent = Color3.fromRGB(28, 144, 255),
+	AccentSoft = Color3.fromRGB(47, 89, 142),
+	Text = Color3.fromRGB(255, 255, 255),
+	SubText = Color3.fromRGB(242, 244, 247),
+	MutedText = Color3.fromRGB(208, 212, 218),
+	Positive = Color3.fromRGB(92, 152, 102),
+	Negative = Color3.fromRGB(150, 88, 88),
+	Warning = Color3.fromRGB(170, 132, 78),
+	Amber = Color3.fromRGB(170, 132, 78),
+	Green = Color3.fromRGB(92, 152, 102),
+	Red = Color3.fromRGB(150, 88, 88),
+	BlueWarm = Color3.fromRGB(118, 134, 158),
+	Selection = Color3.fromRGB(255, 255, 255),
+	Stroke = Color3.fromRGB(108, 112, 120),
+	Divider = Color3.fromRGB(74, 77, 84),
+	Shadow = Color3.fromRGB(4, 4, 6),
+	Corner = UDim.new(0, 10),
+	SmallCorner = UDim.new(0, 6),
+	FontMain = Enum.Font.GothamBold,
+	FontBody = Enum.Font.GothamBold,
+	FontHeader = Enum.Font.GothamBold,
+}
+
+function UIStyle.addCorner(obj, radius)
+	local existing = obj:FindFirstChildOfClass("UICorner")
+	if existing then
+		existing.CornerRadius = radius or UIStyle.Theme.Corner
+		return existing
+	end
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = radius or UIStyle.Theme.Corner
+	corner.Parent = obj
+	return corner
+end
+
+function UIStyle.addStroke(obj, thickness, color, transparency)
+	local stroke = obj:FindFirstChildOfClass("UIStroke")
+	if not stroke then
+		stroke = Instance.new("UIStroke")
+		stroke.Parent = obj
+	end
+	stroke.Thickness = thickness or 1
+	stroke.Color = color or UIStyle.Theme.Stroke
+	if transparency ~= nil then
+		stroke.Transparency = transparency
+	else
+		stroke.Transparency = 0
+	end
+	return stroke
+end
+
+function UIStyle.addPadding(obj, left, right, top, bottom)
+	local padding = obj:FindFirstChildOfClass("UIPadding")
+	if not padding then
+		padding = Instance.new("UIPadding")
+		padding.Parent = obj
+	end
+	padding.PaddingLeft = UDim.new(0, left or 0)
+	padding.PaddingRight = UDim.new(0, right or left or 0)
+	padding.PaddingTop = UDim.new(0, top or 0)
+	padding.PaddingBottom = UDim.new(0, bottom or top or 0)
+	return padding
+end
+
+function UIStyle.addShadow(obj, transparency)
+	local shadow = obj:FindFirstChild("UISoftShadow")
+	if shadow then
+		shadow.ImageTransparency = transparency or 0.78
+		return shadow
+	end
+
+	shadow = Instance.new("ImageLabel")
+	shadow.Name = "UISoftShadow"
+	shadow.BackgroundTransparency = 1
+	shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+	shadow.Position = UDim2.new(0.5, 0, 0.5, 2)
+	shadow.Size = UDim2.new(1, 12, 1, 12)
+	shadow.ZIndex = math.max(0, obj.ZIndex - 1)
+	shadow.Image = "rbxassetid://1316045217"
+	shadow.ImageColor3 = UIStyle.Theme.Shadow
+	shadow.ScaleType = Enum.ScaleType.Slice
+	shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+	shadow.ImageTransparency = transparency or 0.78
+	shadow.Parent = obj
+	return shadow
+end
+
+function UIStyle.applyPanel(obj, variant)
+	local theme = UIStyle.Theme
+	local color = theme.Panel
+	local strokeTransparency = 0.68
+	if variant == "background" then
+		color = theme.Background
+		strokeTransparency = 0.5
+	elseif variant == "card" then
+		color = theme.Card
+	elseif variant == "cardAlt" then
+		color = theme.CardAlt
+	elseif variant == "inset" then
+		color = theme.Inset
+		strokeTransparency = 0.6
+	elseif variant == "panelAlt" then
+		color = theme.PanelAlt
+	elseif variant == "panelSoft" then
+		color = theme.PanelSoft
+	end
+	obj.BackgroundColor3 = color
+	obj.BorderSizePixel = 0
+	UIStyle.addCorner(obj)
+	UIStyle.addStroke(obj, 1, theme.Stroke, strokeTransparency)
+	return obj
+end
+
+function UIStyle.applyButton(obj, kind)
+	local theme = UIStyle.Theme
+	local bg = theme.Panel
+	local fg = theme.Text
+
+	if kind == "primary" then
+		bg = theme.PanelAlt
+	elseif kind == "danger" then
+		bg = theme.Negative
+	elseif kind == "success" then
+		bg = theme.Positive
+	elseif kind == "secondary" then
+		bg = theme.Panel
+	elseif kind == "ghost" then
+		bg = theme.Background
+	elseif kind == "warning" then
+		bg = theme.Warning
+	elseif kind == "muted" then
+		bg = theme.Inset
+		fg = theme.SubText
+	end
+
+	obj.BackgroundColor3 = bg
+	obj.BorderSizePixel = 0
+	obj.TextColor3 = fg
+	obj.TextTransparency = 0
+	obj.AutoButtonColor = true
+	UIStyle.addCorner(obj)
+	UIStyle.addStroke(obj, 1, theme.Stroke, 0.72)
+	return obj
+end
+
+function UIStyle.applyHeaderLabel(label, size, align)
+	local theme = UIStyle.Theme
+	label.BackgroundTransparency = 1
+	label.TextColor3 = theme.Text
+	label.TextTransparency = 0
+	label.Font = theme.FontHeader
+	label.TextSize = size or 18
+	label.TextXAlignment = align or Enum.TextXAlignment.Left
+	return label
+end
+
+function UIStyle.applyBodyLabel(label, size, color, align)
+	local theme = UIStyle.Theme
+	label.BackgroundTransparency = 1
+	label.TextColor3 = color or theme.SubText
+	label.TextTransparency = 0
+	label.Font = theme.FontBody
+	label.TextSize = size or 14
+	label.TextXAlignment = align or Enum.TextXAlignment.Left
+	return label
+end
+
+function UIStyle.createDivider(parent, yOffset, sizeX)
+	local divider = Instance.new("Frame")
+	divider.Size = UDim2.new(sizeX or 1, 0, 0, 1)
+	divider.Position = UDim2.new(0, 0, 0, yOffset or 0)
+	divider.BackgroundColor3 = UIStyle.Theme.Divider
+	divider.BorderSizePixel = 0
+	divider.Parent = parent
+	return divider
+end
+
+function UIStyle.darken(color, alpha)
+	return color:Lerp(Color3.new(0, 0, 0), alpha or 0.18)
+end
+
+return UIStyle
