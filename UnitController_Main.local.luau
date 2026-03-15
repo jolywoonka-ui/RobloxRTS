@@ -37,6 +37,7 @@ local MoveCommand = ReplicatedStorage:WaitForChild("MoveCommand")
 local PingEvent = ReplicatedStorage:WaitForChild("PingEvent")
 local WorldEffectEvent = ReplicatedStorage:WaitForChild("WorldEffectEvent")
 local visualRotationOffsets = setmetatable({}, { __mode = "k" })
+local cachedProjectileTemplates = {}
 
 -- Load tooltip preference
 local function loadTooltipPreference()
@@ -429,16 +430,22 @@ end
 local function createProjectileVisual(templateName, color, size, options)
 	local template = templateName and findEffectTemplate(templateName)
 	if template then
-		local clone = template:Clone()
-		for _, inst in ipairs(clone:GetDescendants()) do
-			if inst:IsA("BasePart") then
-				inst.Anchored = true
-				inst.CanCollide = false
-				inst.CanQuery = false
-			elseif inst:IsA("Script") or inst:IsA("LocalScript") then
-				inst:Destroy()
+		local cache = cachedProjectileTemplates[templateName]
+		if not cache then
+			cache = template:Clone()
+			for _, inst in ipairs(cache:GetDescendants()) do
+				if inst:IsA("BasePart") then
+					inst.Anchored = true
+					inst.CanCollide = false
+					inst.CanQuery = false
+				elseif inst:IsA("Script") or inst:IsA("LocalScript") then
+					inst:Destroy()
+				end
 			end
+			cachedProjectileTemplates[templateName] = cache
 		end
+
+		local clone = cache:Clone()
 		applyTeamPaintColor(clone, options and options.teamColor)
 		if clone:IsA("Model") then
 			visualRotationOffsets[clone] = clone:GetPivot().Rotation
