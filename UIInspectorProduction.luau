@@ -179,13 +179,10 @@ function module.renderProductionHub(model, bType, bData, context)
 	queuePad.PaddingRight = UDim.new(0, 8)
 	queuePad.Parent = queueList
 
-	local function rebuildQueue()
-		for _, child in ipairs(queueList:GetChildren()) do
-			if child:IsA("GuiObject") then
-				child:Destroy()
-			end
-		end
+	local queueItemsCache = {}
+	local queueEmptyLabel = nil
 
+	local function rebuildQueue()
 		local queue = Training.getQueue(model) or {}
 		local snapshot = Training.getTrainingSnapshot(model)
 		overviewState.Text = #queue > 0 and (tostring(#queue) .. " ORDER" .. (#queue == 1 and "" or "S")) or "READY"
@@ -194,42 +191,93 @@ function module.renderProductionHub(model, bType, bData, context)
 		if #queue == 0 then
 			queuePanel.Size = UDim2.new(1, 0, 0, 36)
 			queueList.Visible = false
-			local empty = Layout.createText(queueList, "No active orders.", UDim2.new(1, 0, 0, 18), UDim2.new(), Enum.Font.GothamMedium, Theme.Text, Enum.TextXAlignment.Left, Theme)
-			empty.TextSize = 13
+			if not queueEmptyLabel then
+				queueEmptyLabel = Layout.createText(queueList, "No active orders.", UDim2.new(1, 0, 0, 18), UDim2.new(), Enum.Font.GothamMedium, Theme.Text, Enum.TextXAlignment.Left, Theme)
+				queueEmptyLabel.TextSize = 13
+			end
+			queueEmptyLabel.Visible = true
+
+			for _, cacheItem in pairs(queueItemsCache) do
+				cacheItem.Row.Visible = false
+			end
 			return
 		else
 			queuePanel.Size = UDim2.new(1, 0, 0, 98)
 			queueList.Visible = true
+			if queueEmptyLabel then
+				queueEmptyLabel.Visible = false
+			end
+		end
+
+		-- Clean up excess cached items if queue shrunk
+		if #queueItemsCache > #queue then
+			for i = #queue + 1, #queueItemsCache do
+				if queueItemsCache[i] then
+					queueItemsCache[i].Row:Destroy()
+					queueItemsCache[i] = nil
+				end
+			end
 		end
 
 		for index, unitName in ipairs(queue) do
-			local row = Instance.new("TextButton")
-			row.Size = UDim2.new(0, 198, 1, 0)
-			row.BackgroundColor3 = Theme.Panel
-			row.BorderSizePixel = 0
-			row.Text = ""
-			row.Parent = queueList
-			Layout.addCorner(row, UDim.new(0, 3))
-			Layout.addStroke(row, 1, Theme.Stroke)
+			local cacheItem = queueItemsCache[index]
 
-			local icon = Instance.new("Frame")
-			icon.Size = UDim2.new(0, 28, 0, 28)
-			icon.Position = UDim2.new(0, 8, 0.5, -14)
-			icon.BackgroundColor3 = Theme.Inset
-			icon.BorderSizePixel = 0
-			icon.Parent = row
-			Layout.addCorner(icon, UDim.new(0, 2))
-			Rendering.renderUnitViewport(icon, unitName)
+			if not cacheItem then
+				local row = Instance.new("TextButton")
+				row.Size = UDim2.new(0, 198, 1, 0)
+				row.BackgroundColor3 = Theme.Panel
+				row.BorderSizePixel = 0
+				row.Text = ""
+				row.LayoutOrder = index
+				row.Parent = queueList
+				Layout.addCorner(row, UDim.new(0, 3))
+				Layout.addStroke(row, 1, Theme.Stroke)
 
-			local title = Layout.createText(row, Rendering.formatUnitDisplayName(unitName), UDim2.new(1, -52, 0, 18), UDim2.new(0, 42, 0, 6), Enum.Font.GothamBold, Theme.Text, Enum.TextXAlignment.Left, Theme)
-			title.TextSize = 12
+				local icon = Instance.new("Frame")
+				icon.Size = UDim2.new(0, 28, 0, 28)
+				icon.Position = UDim2.new(0, 8, 0.5, -14)
+				icon.BackgroundColor3 = Theme.Inset
+				icon.BorderSizePixel = 0
+				icon.Parent = row
+				Layout.addCorner(icon, UDim.new(0, 2))
+
+				local title = Layout.createText(row, "", UDim2.new(1, -52, 0, 18), UDim2.new(0, 42, 0, 6), Enum.Font.GothamBold, Theme.Text, Enum.TextXAlignment.Left, Theme)
+				title.TextSize = 12
+				local meta = Layout.createText(row, "", UDim2.new(1, -48, 0, 16), UDim2.new(0, 42, 0, 24), Enum.Font.GothamBold, Theme.Text, Enum.TextXAlignment.Left, Theme)
+				meta.TextSize = 12
+
+				local debounced = false
+				row.MouseButton1Click:Connect(function()
+					if debounced then return end
+					debounced = true
+					task.delay(0.2, function() debounced = false end)
+					UnitEvent:FireServer("CancelTrain", model, index)
+				end)
+
+				cacheItem = {
+					Row = row,
+					Icon = icon,
+					Title = title,
+					Meta = meta,
+					LastUnitName = ""
+				}
+				queueItemsCache[index] = cacheItem
+			end
+
+			cacheItem.Row.Visible = true
+
+			-- Only redraw the viewport frame if the unit name actually changed for this slot
+			if cacheItem.LastUnitName ~= unitName then
+				for _, c in ipairs(cacheItem.Icon:GetChildren()) do
+					if c:IsA("ViewportFrame") then c:Destroy() end
+				end
+				Rendering.renderUnitViewport(cacheItem.Icon, unitName)
+				cacheItem.LastUnitName = unitName
+			end
+
+			cacheItem.Title.Text = Rendering.formatUnitDisplayName(unitName)
 			local etaText = snapshot and index == 1 and formatQueueEta(snapshot.Remaining) or ("#" .. tostring(index))
-			local meta = Layout.createText(row, etaText, UDim2.new(1, -48, 0, 16), UDim2.new(0, 42, 0, 24), Enum.Font.GothamBold, Theme.Text, Enum.TextXAlignment.Left, Theme)
-			meta.TextSize = 12
-
-			row.MouseButton1Click:Connect(function()
-				UnitEvent:FireServer("CancelTrain", model, index)
-			end)
+			cacheItem.Meta.Text = etaText
 		end
 	end
 

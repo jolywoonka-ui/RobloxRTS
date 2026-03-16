@@ -126,8 +126,8 @@ UIStyle.applyPanel(rosterPanel, "panel")
 UIStyle.createLabel(rosterPanel, "PLAYERS", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 10), THEME.FontMain, 11, THEME.SubText)
 
 local rosterList = Instance.new("ScrollingFrame")
-rosterList.Size = UDim2.new(1, -20, 1, -34)
-rosterList.Position = UDim2.new(0, 10, 0, 26)
+rosterList.Size = UDim2.new(1, -12, 1, -34)
+rosterList.Position = UDim2.new(0, 6, 0, 26)
 rosterList.BackgroundTransparency = 1
 rosterList.BorderSizePixel = 0
 rosterList.ScrollBarThickness = 4
@@ -178,8 +178,8 @@ UIStyle.applyPanel(alliedPanel, "background")
 UIStyle.createLabel(alliedPanel, "CURRENT ALLIANCE", UDim2.new(1, -20, 0, 14), UDim2.new(0, 10, 0, 10), THEME.FontMain, 11, THEME.SubText)
 
 local alliesList = Instance.new("ScrollingFrame")
-alliesList.Size = UDim2.new(1, -20, 1, -34)
-alliesList.Position = UDim2.new(0, 10, 0, 26)
+alliesList.Size = UDim2.new(1, -12, 1, -34)
+alliesList.Position = UDim2.new(0, 6, 0, 26)
 alliesList.BackgroundTransparency = 1
 alliesList.BorderSizePixel = 0
 alliesList.ScrollBarThickness = 4
