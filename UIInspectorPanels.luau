@@ -413,6 +413,7 @@ local function _createDefensePanel(shell, model, context)
 		local md = Layout.createText(mb, "Rng: " .. def.Range .. " | Dmg: " .. def.Damage, UDim2.new(1, -20, 0, 16), UDim2.new(0, 10, 0, 28), Enum.Font.Gotham, Theme.SubText, Enum.TextXAlignment.Left, Theme)
 		md.TextSize = 11
 
+		context.connections = context.connections or {}
 		table.insert(context.connections, mb.MouseButton1Click:Connect(function()
 			ServerEvents.ChangeHQDefenseMode:FireServer(model, k)
 		end))

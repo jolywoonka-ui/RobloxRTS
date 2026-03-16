@@ -220,4 +220,75 @@ function UIStyle.darken(color, alpha)
 	return color:Lerp(Color3.new(0, 0, 0), alpha or 0.18)
 end
 
+
+
+function UIStyle.applyButtonEffects(button)
+	local TweenService = game:GetService("TweenService")
+
+	local originalColor = button.BackgroundColor3
+	local hoverColor = UIStyle.darken(originalColor, 0.15)
+	local pressColor = UIStyle.darken(originalColor, 0.3)
+
+	local hoverTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = hoverColor})
+	local resetTween = TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = originalColor})
+	local pressTween = TweenService:Create(button, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = pressColor})
+	local releaseTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = hoverColor})
+
+	button.MouseEnter:Connect(function()
+		hoverTween:Play()
+	end)
+
+	button.MouseLeave:Connect(function()
+		resetTween:Play()
+	end)
+
+	button.MouseButton1Down:Connect(function()
+		pressTween:Play()
+	end)
+
+	button.MouseButton1Up:Connect(function()
+		releaseTween:Play()
+	end)
+end
+
+function UIStyle.animateWindowOpen(frame)
+	local TweenService = game:GetService("TweenService")
+	local originalPosition = frame.Position
+	frame.Position = UDim2.new(originalPosition.X.Scale, originalPosition.X.Offset, originalPosition.Y.Scale, originalPosition.Y.Offset + 20)
+	frame.BackgroundTransparency = 1
+
+	-- Fade children
+	for _, child in ipairs(frame:GetDescendants()) do
+		if child:IsA("TextLabel") or child:IsA("TextButton") then
+			child.TextTransparency = 1
+		elseif child:IsA("ImageLabel") or child:IsA("ImageButton") then
+			child.ImageTransparency = 1
+		elseif child:IsA("Frame") and child.Name ~= "UISoftShadow" then
+			child.BackgroundTransparency = 1
+		elseif child:IsA("UIStroke") then
+			child.Transparency = 1
+		end
+	end
+
+	frame.Visible = true
+
+	local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	TweenService:Create(frame, tweenInfo, {Position = originalPosition, BackgroundTransparency = 0}):Play()
+
+	for _, child in ipairs(frame:GetDescendants()) do
+		if child:IsA("TextLabel") or child:IsA("TextButton") then
+			TweenService:Create(child, tweenInfo, {TextTransparency = 0}):Play()
+			if child:IsA("TextButton") then
+				TweenService:Create(child, tweenInfo, {BackgroundTransparency = 0}):Play()
+			end
+		elseif child:IsA("ImageLabel") or child:IsA("ImageButton") then
+			TweenService:Create(child, tweenInfo, {ImageTransparency = 0}):Play()
+		elseif child:IsA("Frame") and child.Name ~= "UISoftShadow" then
+			TweenService:Create(child, tweenInfo, {BackgroundTransparency = 0}):Play()
+		elseif child:IsA("UIStroke") then
+			TweenService:Create(child, tweenInfo, {Transparency = 0}):Play()
+		end
+	end
+end
+
 return UIStyle

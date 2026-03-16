@@ -19,6 +19,14 @@ local pendingSender
 local openBtn
 local lastOpenButtonPosition
 
+local function applyButtonEffectToAll(parent)
+	for _, child in ipairs(parent:GetDescendants()) do
+		if child:IsA("TextButton") then
+			UIStyle.applyButtonEffects(child)
+		end
+	end
+end
+
 local function updateOpenButtonPosition()
 	local mainUi = playerGui:FindFirstChild("RTS_MainUI")
 	local gameFrame = mainUi and mainUi:FindFirstChild("GameFrame")
@@ -90,7 +98,7 @@ overlay.Parent = screen
 
 local window = Instance.new("Frame")
 window.Name = "AllianceWindow"
-window.Size = UDim2.new(0, 760, 0, 430)
+window.Size = UDim2.new(0, 800, 0, 500)
 window.Position = UDim2.new(0.5, 0, 0.5, 0)
 window.AnchorPoint = Vector2.new(0.5, 0.5)
 window.BorderSizePixel = 0
@@ -99,18 +107,18 @@ window.Parent = screen
 UIStyle.applyPanel(window, "background")
 
 local header = Instance.new("Frame")
-header.Size = UDim2.new(1, -20, 0, 32)
-header.Position = UDim2.new(0, 10, 0, 10)
+header.Size = UDim2.new(1, -40, 0, 32)
+header.Position = UDim2.new(0, 20, 0, 20)
 header.BackgroundTransparency = 1
 header.Parent = window
 
-UIStyle.createLabel(header, "ALLIANCE", UDim2.new(0, 180, 1, 0), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 20, THEME.Text)
-local summaryText = UIStyle.createLabel(header, "Alliance: Solo", UDim2.new(0, 280, 1, 0), UDim2.new(0, 150, 0, 0), THEME.FontMain, 12, THEME.Text)
+UIStyle.createLabel(header, "ALLIANCE", UDim2.new(0, 180, 1, 0), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 24, THEME.Text)
+local summaryText = UIStyle.createLabel(header, "Alliance: Solo", UDim2.new(0, 280, 1, 0), UDim2.new(0, 150, 0, 0), THEME.FontMain, 14, THEME.Text)
 local closeX = UIStyle.createButton(header, "CLOSE", UDim2.new(0, 78, 0, 26), UDim2.new(1, -78, 0, 3), "secondary")
 
 local rosterPanel = Instance.new("Frame")
-rosterPanel.Size = UDim2.new(0, 256, 1, -60)
-rosterPanel.Position = UDim2.new(0, 10, 0, 50)
+rosterPanel.Size = UDim2.new(0.4, -26, 1, -80)
+rosterPanel.Position = UDim2.new(0, 20, 0, 60)
 rosterPanel.BorderSizePixel = 0
 rosterPanel.Parent = window
 UIStyle.applyPanel(rosterPanel, "panel")
@@ -129,8 +137,8 @@ rosterList.CanvasSize = UDim2.new(0, 0, 0, 0)
 rosterList.Parent = rosterPanel
 
 local detailPanel = Instance.new("Frame")
-detailPanel.Size = UDim2.new(1, -286, 1, -60)
-detailPanel.Position = UDim2.new(0, 276, 0, 50)
+detailPanel.Size = UDim2.new(0.6, -26, 1, -80)
+detailPanel.Position = UDim2.new(0.4, 6, 0, 60)
 detailPanel.BorderSizePixel = 0
 detailPanel.Parent = window
 UIStyle.applyPanel(detailPanel, "panel")
@@ -202,12 +210,19 @@ end
 local confirmFrame, confirmText, yesBtn, noBtn = createModal("ConfirmInvite", "CONFIRM INVITE", "SEND", "CANCEL", "primary", "secondary")
 local inviteFrame, invText, accBtn, decBtn = createModal("IncomingInvite", "INCOMING INVITE", "ACCEPT", "DECLINE", "success", "danger")
 
+applyButtonEffectToAll(screen)
+
 local function refreshOverlay()
 	overlay.Visible = window.Visible or confirmFrame.Visible or inviteFrame.Visible
 end
 
 local function setWindowVisible(visible)
-	window.Visible = visible
+	if visible and not window.Visible then
+		UIStyle.animateWindowOpen(window)
+	else
+		window.Visible = visible
+	end
+
 	if not visible then
 		pendingInviteTarget = nil
 	end
@@ -297,6 +312,7 @@ local function rebuildRoster()
 		UIStyle.createLabel(row, string.format("$%d  |  +%d  |  %d units", readNestedInt(target, "Stats", "Credits"), readNestedInt(target, "PlayerStats", "Income"), readNestedInt(target, "PlayerStats", "CurrentUnits")), UDim2.new(1, -104, 0, 14), UDim2.new(0, 8, 0, 24), THEME.FontBody, 10, THEME.SubText)
 		UIStyle.createLabel(row, statusText, UDim2.new(0, 88, 0, 14), UDim2.new(1, -96, 0.5, -7), THEME.FontMain, 10, statusColor, Enum.TextXAlignment.Right)
 
+		UIStyle.applyButtonEffects(row)
 		row.MouseButton1Click:Connect(function()
 			selectedPlayer = target
 			rebuildRoster()
