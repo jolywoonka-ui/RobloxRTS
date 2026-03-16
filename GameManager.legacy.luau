@@ -43,6 +43,12 @@ ensureRemote("MissileSiloEvent", "RemoteEvent", ReplicatedStorage)
 ensureRemote("HeadquartersControlEvent", "RemoteEvent", ReplicatedStorage)
 ensureRemote("MapVoteEvent", "RemoteEvent", ReplicatedStorage)
 ensureRemote("ResearchEvent", "RemoteEvent", ReplicatedStorage)
+ensureRemote("ChangeHQDefenseMode", "RemoteEvent", ReplicatedStorage)
+ensureRemote("QueueBuilder", "RemoteEvent", ReplicatedStorage)
+ensureRemote("StartResearch", "RemoteEvent", ReplicatedStorage)
+ensureRemote("DiplomacyInvite", "RemoteEvent", ReplicatedStorage)
+ensureRemote("DiplomacyRespond", "RemoteEvent", ReplicatedStorage)
+ensureRemote("DiplomacyUpdate", "RemoteEvent", ReplicatedStorage)
 
 -- Require modules
 local GameStateModule = require(ServerStorage:WaitForChild("GameState"))

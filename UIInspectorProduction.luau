@@ -86,6 +86,9 @@ function module.renderProductionHub(model, bType, bData, context)
 	ui.InspectorFrame.Size = UDim2.new(0, 440, 0, 510)
 	ui.InspectorFrame.Position = UDim2.new(1, -460, 1, -530)
 	ui.InspectorFrame.BackgroundColor3 = Theme.Background
+
+	local UIStyle = require(game:GetService("ReplicatedStorage"):WaitForChild("UIStyle"))
+	UIStyle.animateWindowOpen(ui.InspectorFrame)
 	ui.InspTitle.Visible = true
 	ui.InspTitle.Text = overline
 	ui.InspTitle.Position = UDim2.new(0, 14, 0, 10)
@@ -120,7 +123,13 @@ function module.renderProductionHub(model, bType, bData, context)
 	context.clearTrainFrameContent()
 	Training.ensureQueue(model)
 
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.Padding = UDim.new(0, 8)
+	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	listLayout.Parent = ui.TrainFrame
+
 	local overviewPanel = Instance.new("Frame")
+	overviewPanel.LayoutOrder = 1
 	overviewPanel.Size = UDim2.new(1, 0, 0, 58)
 	overviewPanel.BackgroundColor3 = Theme.Panel
 	overviewPanel.BorderSizePixel = 0
@@ -136,6 +145,7 @@ function module.renderProductionHub(model, bType, bData, context)
 	overviewBody.TextSize = 12
 
 	local queuePanel = Instance.new("Frame")
+	queuePanel.LayoutOrder = 2
 	queuePanel.Size = UDim2.new(1, 0, 0, 98)
 	queuePanel.BackgroundColor3 = Theme.Panel
 	queuePanel.BorderSizePixel = 0
@@ -180,10 +190,16 @@ function module.renderProductionHub(model, bType, bData, context)
 		local snapshot = Training.getTrainingSnapshot(model)
 		overviewState.Text = #queue > 0 and (tostring(#queue) .. " ORDER" .. (#queue == 1 and "" or "S")) or "READY"
 		overviewState.TextColor3 = #queue > 0 and Theme.Text or Theme.Positive
+
 		if #queue == 0 then
-		local empty = Layout.createText(queueList, "No active orders.", UDim2.new(1, 0, 0, 18), UDim2.new(), Enum.Font.GothamMedium, Theme.Text, Enum.TextXAlignment.Left, Theme)
+			queuePanel.Size = UDim2.new(1, 0, 0, 36)
+			queueList.Visible = false
+			local empty = Layout.createText(queueList, "No active orders.", UDim2.new(1, 0, 0, 18), UDim2.new(), Enum.Font.GothamMedium, Theme.Text, Enum.TextXAlignment.Left, Theme)
 			empty.TextSize = 13
 			return
+		else
+			queuePanel.Size = UDim2.new(1, 0, 0, 98)
+			queueList.Visible = true
 		end
 
 		for index, unitName in ipairs(queue) do
@@ -226,6 +242,19 @@ function module.renderProductionHub(model, bType, bData, context)
 		end
 	end
 
+	local gridFrame = Instance.new("Frame")
+	gridFrame.LayoutOrder = 3
+	gridFrame.Size = UDim2.new(1, 0, 0, 0)
+	gridFrame.AutomaticSize = Enum.AutomaticSize.Y
+	gridFrame.BackgroundTransparency = 1
+	gridFrame.Parent = ui.TrainFrame
+
+	local gridLayout = Instance.new("UIGridLayout")
+	gridLayout.CellSize = UDim2.new(0.5, -3, 0, 66)
+	gridLayout.CellPadding = UDim2.new(0, 6, 0, 6)
+	gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	gridLayout.Parent = gridFrame
+
 	for order, entry in ipairs(recruitOptions) do
 		local unitName = entry.Name
 		local unlockDepth = entry.UnlockDepth or 0
@@ -237,17 +266,16 @@ function module.renderProductionHub(model, bType, bData, context)
 
 			local card = Instance.new("TextButton")
 			card.LayoutOrder = order
-			card.Size = UDim2.new(1, 0, 0, 66)
 			card.BackgroundColor3 = isLocked and Theme.PanelSoft or Theme.Panel
 			card.BorderSizePixel = 0
 			card.Text = ""
-			card.Parent = ui.TrainFrame
+			card.Parent = gridFrame
 			Layout.addCorner(card, UDim.new(0, 3))
 			Layout.addStroke(card, 1, Theme.Stroke)
 
 			local icon = Instance.new("Frame")
-			icon.Size = UDim2.new(0, 46, 0, 46)
-			icon.Position = UDim2.new(0, 8, 0.5, -23)
+			icon.Size = UDim2.new(0, 40, 0, 40)
+			icon.Position = UDim2.new(0, 6, 0.5, -20)
 			icon.BackgroundColor3 = Theme.Inset
 			icon.BorderSizePixel = 0
 			icon.Parent = card
@@ -256,8 +284,9 @@ function module.renderProductionHub(model, bType, bData, context)
 			Rendering.renderUnitViewport(icon, unitName)
 			icon.BackgroundTransparency = isLocked and 0.2 or 0
 
-			local title = Layout.createText(card, Rendering.formatUnitDisplayName(unitName), UDim2.new(0.52, -8, 0, 18), UDim2.new(0, 62, 0, 8), Enum.Font.GothamBold, Theme.Text, Enum.TextXAlignment.Left, Theme)
-			title.TextSize = 15
+			local title = Layout.createText(card, Rendering.formatUnitDisplayName(unitName), UDim2.new(1, -54, 0, 16), UDim2.new(0, 52, 0, 6), Enum.Font.GothamBold, Theme.Text, Enum.TextXAlignment.Left, Theme)
+			title.TextSize = 13
+			title.TextScaled = true
 
 			local line2Text
 			local line2Color
@@ -265,11 +294,11 @@ function module.renderProductionHub(model, bType, bData, context)
 				line2Text = getUnlockRequirementText(bType, unlockDepth, researchLocked and researchRequired or nil)
 				line2Color = researchLocked and Theme.Warning or Theme.SubText
 			else
-				line2Text = "$" .. tostring(uData.Cost or 0) .. "   " .. tostring(uData.TrainingTime or 0) .. "s"
+				line2Text = "$" .. tostring(uData.Cost or 0) .. "  " .. tostring(uData.TrainingTime or 0) .. "s"
 				line2Color = Theme.Positive
 			end
-			local meta = Layout.createText(card, line2Text, UDim2.new(1, -70, 0, 22), UDim2.new(0, 62, 0, 29), Enum.Font.GothamBold, line2Color, Enum.TextXAlignment.Left, Theme)
-			meta.TextSize = 12
+			local meta = Layout.createText(card, line2Text, UDim2.new(1, -54, 0, 28), UDim2.new(0, 52, 0, 24), Enum.Font.GothamBold, line2Color, Enum.TextXAlignment.Left, Theme)
+			meta.TextSize = 11
 			meta.TextWrapped = true
 
 			card.MouseButton1Click:Connect(function()

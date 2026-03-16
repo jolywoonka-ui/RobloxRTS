@@ -39,7 +39,7 @@ UIStyle.createLabel(mainFrame, "Simple round summary for you and the lobby leade
 local closeButton = UIStyle.createButton(mainFrame, "CLOSE", UDim2.new(0, 80, 0, 28), UDim2.new(1, -94, 0, 14), "secondary")
 UIStyle.createDivider(mainFrame, 64, 1)
 
-local winnersLabel = UIStyle.createLabel(mainFrame, "-", UDim2.new(1, -28, 0, 26), UDim2.new(0, 14, 0, 78), THEME.FontHeader, 24, THEME.Text)
+local winnersLabel = UIStyle.createLabel(mainFrame, "-", UDim2.new(1, -28, 0, 26), UDim2.new(0, 14, 0, 78), THEME.FontHeader, 24, THEME.Warning)
 
 local personalFrame = Instance.new("Frame")
 personalFrame.Size = UDim2.new(0.5, -18, 1, -142)
@@ -74,7 +74,10 @@ local function createMetricRow(parent, titleText, valueText)
 	row.Parent = parent
 	UIStyle.applyPanel(row, "panel")
 	UIStyle.createLabel(row, string.upper(titleText), UDim2.new(0.55, -8, 1, 0), UDim2.new(0, 8, 0, 0), THEME.FontMain, 11, THEME.SubText)
-	UIStyle.createLabel(row, tostring(valueText), UDim2.new(0.45, -8, 1, 0), UDim2.new(0.55, 0, 0, 0), THEME.FontHeader, 18, THEME.Text, Enum.TextXAlignment.Right)
+
+	local valueLabel = UIStyle.createLabel(row, "0", UDim2.new(0.45, -8, 1, 0), UDim2.new(0.55, 0, 0, 0), THEME.FontHeader, 18, THEME.Text, Enum.TextXAlignment.Right)
+
+	return row, valueLabel
 end
 
 local function createLeaderRow(parent, titleText, playerName, valueText)
@@ -85,7 +88,10 @@ local function createLeaderRow(parent, titleText, playerName, valueText)
 	UIStyle.applyPanel(row, "panel")
 	UIStyle.createLabel(row, string.upper(titleText), UDim2.new(1, -16, 0, 14), UDim2.new(0, 8, 0, 6), THEME.FontMain, 11, THEME.SubText)
 	UIStyle.createLabel(row, tostring(playerName), UDim2.new(0.62, -8, 0, 18), UDim2.new(0, 8, 0, 26), THEME.FontHeader, 16, THEME.Text)
-	UIStyle.createLabel(row, tostring(valueText), UDim2.new(0.38, -8, 0, 18), UDim2.new(0.62, 0, 0, 26), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Right)
+
+	local valueLabel = UIStyle.createLabel(row, "0", UDim2.new(0.38, -8, 0, 18), UDim2.new(0.62, 0, 0, 26), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Right)
+
+	return row, valueLabel
 end
 
 local function getGlobalEntry(globalMost, key)
@@ -109,6 +115,47 @@ local function findPersonalStats(data)
 	return nil
 end
 
+local function animateCount(label, finalValue, duration, formatStr)
+	local startTime = os.clock()
+	local connection
+	connection = game:GetService("RunService").RenderStepped:Connect(function()
+		local elapsed = os.clock() - startTime
+		local progress = math.min(elapsed / duration, 1)
+
+		-- Use easeOutQuad for counting effect
+		local easedProgress = 1 - (1 - progress) * (1 - progress)
+		local currentValue = math.floor(finalValue * easedProgress)
+
+		if formatStr then
+			label.Text = string.format(formatStr, currentValue)
+		else
+			label.Text = tostring(currentValue)
+		end
+
+		if progress >= 1 then
+			connection:Disconnect()
+		end
+	end)
+end
+
+local function fadeRowIn(row, delayTime)
+	row.BackgroundTransparency = 1
+	for _, child in ipairs(row:GetDescendants()) do
+		if child:IsA("TextLabel") then
+			child.TextTransparency = 1
+		end
+	end
+
+	task.delay(delayTime, function()
+		TweenService:Create(row, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
+		for _, child in ipairs(row:GetDescendants()) do
+			if child:IsA("TextLabel") then
+				TweenService:Create(child, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
+			end
+		end
+	end)
+end
+
 local function hide()
 	screenGui.Enabled = false
 end
@@ -125,6 +172,8 @@ local function showAnimated()
 	}):Play()
 end
 
+UIStyle.applyButtonEffects(closeButton)
+
 closeButton.MouseButton1Click:Connect(hide)
 overlay.MouseButton1Click:Connect(hide)
 
@@ -133,6 +182,8 @@ victoryEvent.OnClientEvent:Connect(function(data)
 
 	local winners = (data and data.winners) and tostring(data.winners) or "Unknown"
 	winnersLabel.Text = "Winner: " .. winners
+	winnersLabel.TextTransparency = 1
+	TweenService:Create(winnersLabel, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
 
 	clearRows(personalFrame)
 	clearRows(globalFrame)
@@ -141,15 +192,38 @@ victoryEvent.OnClientEvent:Connect(function(data)
 	UIStyle.createLabel(globalFrame, "ROUND LEADERS", UDim2.new(1, 0, 0, 16), UDim2.new(), THEME.FontMain, 11, THEME.SubText)
 
 	local mine = findPersonalStats(data)
-	createMetricRow(personalFrame, "Money Spent", mine and (mine.moneySpent or 0) or 0)
-	createMetricRow(personalFrame, "Units Recruited", mine and (mine.unitsRecruited or 0) or 0)
-	createMetricRow(personalFrame, "Damage Dealt", mine and (mine.damageDealt or 0) or 0)
+	local pSpent = mine and (mine.moneySpent or 0) or 0
+	local pRecruit = mine and (mine.unitsRecruited or 0) or 0
+	local pDamage = mine and (mine.damageDealt or 0) or 0
+
+	local rowP1, valP1 = createMetricRow(personalFrame, "Money Spent", pSpent)
+	local rowP2, valP2 = createMetricRow(personalFrame, "Units Recruited", pRecruit)
+	local rowP3, valP3 = createMetricRow(personalFrame, "Damage Dealt", pDamage)
 
 	local topSpenderName, topSpenderValue = getGlobalEntry(data and data.globalMost, "moneySpent")
 	local topRecruitName, topRecruitValue = getGlobalEntry(data and data.globalMost, "unitsRecruited")
 	local topDamageName, topDamageValue = getGlobalEntry(data and data.globalMost, "damageDealt")
 
-	createLeaderRow(globalFrame, "Top Spender", topSpenderName, "$" .. tostring(topSpenderValue))
-	createLeaderRow(globalFrame, "Top Recruiter", topRecruitName, tostring(topRecruitValue) .. " units")
-	createLeaderRow(globalFrame, "Top Damage", topDamageName, tostring(topDamageValue))
+	local rowG1, valG1 = createLeaderRow(globalFrame, "Top Spender", topSpenderName, topSpenderValue)
+	local rowG2, valG2 = createLeaderRow(globalFrame, "Top Recruiter", topRecruitName, topRecruitValue)
+	local rowG3, valG3 = createLeaderRow(globalFrame, "Top Damage", topDamageName, topDamageValue)
+
+	local delayStep = 0.15
+	fadeRowIn(rowP1, delayStep * 1)
+	fadeRowIn(rowG1, delayStep * 1)
+
+	fadeRowIn(rowP2, delayStep * 2)
+	fadeRowIn(rowG2, delayStep * 2)
+
+	fadeRowIn(rowP3, delayStep * 3)
+	fadeRowIn(rowG3, delayStep * 3)
+
+	task.delay(delayStep * 1, function() animateCount(valP1, pSpent, 1.0, "$%d") end)
+	task.delay(delayStep * 1, function() animateCount(valG1, topSpenderValue, 1.0, "$%d") end)
+
+	task.delay(delayStep * 2, function() animateCount(valP2, pRecruit, 1.0, "%d") end)
+	task.delay(delayStep * 2, function() animateCount(valG2, topRecruitValue, 1.0, "%d units") end)
+
+	task.delay(delayStep * 3, function() animateCount(valP3, pDamage, 1.0, "%d") end)
+	task.delay(delayStep * 3, function() animateCount(valG3, topDamageValue, 1.0, "%d") end)
 end)
