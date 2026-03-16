@@ -93,7 +93,11 @@ local function attachHealthHandlers(unit)
 			if gui then gui.Enabled = true end
 		end
 		local p = math.clamp(hp / max, 0, 1)
-		hpFill:TweenSize(UDim2.new(p, 0, 1, 0), "Out", "Quad", 0.1, true)
+		if unit:IsDescendantOf(workspace) then
+			hpFill:TweenSize(UDim2.new(p, 0, 1, 0), "Out", "Quad", 0.1, true)
+		else
+			hpFill.Size = UDim2.new(p, 0, 1, 0)
+		end
 		if p < 0.3 then
 			hpGradient.Color = ColorSequence.new{
 				ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 80, 80)),

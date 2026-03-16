@@ -112,8 +112,10 @@ header.Position = UDim2.new(0, 20, 0, 20)
 header.BackgroundTransparency = 1
 header.Parent = window
 
-UIStyle.createLabel(header, "ALLIANCE", UDim2.new(0, 180, 1, 0), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 24, THEME.Text)
+local allianceLabel = UIStyle.createLabel(header, "ALLIANCE", UDim2.new(0, 180, 1, 0), UDim2.new(0, 0, 0, 0), THEME.FontHeader, 24, THEME.Text)
+allianceLabel.BackgroundTransparency = 1
 local summaryText = UIStyle.createLabel(header, "Alliance: Solo", UDim2.new(0, 280, 1, 0), UDim2.new(0, 150, 0, 0), THEME.FontMain, 14, THEME.Text)
+summaryText.BackgroundTransparency = 1
 local closeX = UIStyle.createButton(header, "CLOSE", UDim2.new(0, 78, 0, 26), UDim2.new(1, -78, 0, 3), "secondary")
 
 local rosterPanel = Instance.new("Frame")

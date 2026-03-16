@@ -111,7 +111,7 @@ local function createCard(index)
 	local previewShade = Instance.new("Frame")
 	previewShade.Size = UDim2.new(1, 0, 1, 0)
 	previewShade.BackgroundColor3 = Color3.new(0, 0, 0)
-	previewShade.BackgroundTransparency = 0.45
+	previewShade.BackgroundTransparency = 1
 	previewShade.BorderSizePixel = 0
 	previewShade.Parent = previewFrame
 

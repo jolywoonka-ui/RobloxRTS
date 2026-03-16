@@ -132,7 +132,7 @@ local function resetInspectorLayout()
 	ui.SellBtn.TextColor3 = THEME.Text
 	ui.UpgradeBtn.Size = UDim2.new(1, -40, 0, 40)
 	ui.UpgradeBtn.Position = UDim2.new(0, 20, 1, -95)
-	ui.UpgradeBtn.BackgroundColor3 = THEME.Accent
+	ui.UpgradeBtn.BackgroundColor3 = Color3.fromRGB(60, 160, 255)
 	ui.UpgradeBtn.TextColor3 = THEME.Text
 end
 

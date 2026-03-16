@@ -35,7 +35,7 @@ panel.Parent = screenGui
 UIStyle.applyPanel(panel, "background")
 
 UIStyle.createLabel(panel, "ROUND COMPLETE", UDim2.new(1, -24, 0, 16), UDim2.new(0, 12, 0, 14), THEME.FontMain, 11, THEME.SubText, Enum.TextXAlignment.Center)
-local winnersLabel = UIStyle.createLabel(panel, "-", UDim2.new(1, -24, 0, 56), UDim2.new(0, 12, 0, 42), THEME.FontHeader, 26, THEME.Text, Enum.TextXAlignment.Center)
+local winnersLabel = UIStyle.createLabel(panel, "-", UDim2.new(1, -24, 0, 56), UDim2.new(0, 12, 0, 42), THEME.FontHeader, 26, Color3.fromRGB(255, 215, 0), Enum.TextXAlignment.Center)
 winnersLabel.TextWrapped = true
 UIStyle.createLabel(panel, "The next round is preparing now.", UDim2.new(1, -24, 0, 16), UDim2.new(0, 12, 0, 108), THEME.FontBody, 12, THEME.SubText, Enum.TextXAlignment.Center)
 

@@ -49,6 +49,8 @@ ensureRemote("StartResearch", "RemoteEvent", ReplicatedStorage)
 ensureRemote("DiplomacyInvite", "RemoteEvent", ReplicatedStorage)
 ensureRemote("DiplomacyRespond", "RemoteEvent", ReplicatedStorage)
 ensureRemote("DiplomacyUpdate", "RemoteEvent", ReplicatedStorage)
+ensureRemote("GetSettings", "RemoteFunction", ReplicatedStorage)
+ensureRemote("SaveSettings", "RemoteFunction", ReplicatedStorage)
 
 -- Require modules
 local GameStateModule = require(ServerStorage:WaitForChild("GameState"))
