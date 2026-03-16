@@ -83,28 +83,28 @@ function module.renderProductionHub(model, bType, bData, context)
 
 	local ui = context.ui
 	local overline = getProductionStyle(bType)
-	ui.InspectorFrame.Size = UDim2.new(0, 440, 0, 510)
-	ui.InspectorFrame.Position = UDim2.new(1, -460, 1, -530)
+	ui.InspectorFrame.Size = UDim2.new(0, 480, 0, 560)
+	ui.InspectorFrame.Position = UDim2.new(1, -500, 1, -580)
 	ui.InspectorFrame.BackgroundColor3 = Theme.Background
 
 	local UIStyle = require(game:GetService("ReplicatedStorage"):WaitForChild("UIStyle"))
 	UIStyle.animateWindowOpen(ui.InspectorFrame)
 	ui.InspTitle.Visible = true
 	ui.InspTitle.Text = overline
-	ui.InspTitle.Position = UDim2.new(0, 14, 0, 10)
-	ui.InspTitle.Size = UDim2.new(1, -28, 0, 24)
+	ui.InspTitle.Position = UDim2.new(0, 16, 0, 12)
+	ui.InspTitle.Size = UDim2.new(1, -32, 0, 28)
 	ui.InspTitle.TextXAlignment = Enum.TextXAlignment.Left
-	ui.InspTitle.TextSize = 20
+	ui.InspTitle.TextSize = 22
 	ui.HPContainer.Visible = true
-	ui.HPContainer.Position = UDim2.new(0, 14, 0, 42)
-	ui.HPContainer.Size = UDim2.new(1, -28, 0, 14)
+	ui.HPContainer.Position = UDim2.new(0, 16, 0, 46)
+	ui.HPContainer.Size = UDim2.new(1, -32, 0, 16)
 	ui.QueueLabel.Visible = false
 	ui.QueueScroll.Visible = false
 	ui.TrainFrame.Visible = true
-	ui.TrainFrame.Position = UDim2.new(0, 14, 0, 68)
-	ui.TrainFrame.Size = UDim2.new(1, -28, 0, 388)
+	ui.TrainFrame.Position = UDim2.new(0, 16, 0, 76)
+	ui.TrainFrame.Size = UDim2.new(1, -32, 0, 420)
 	ui.TrainFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-	ui.TrainFrame.ScrollBarThickness = 4
+	ui.TrainFrame.ScrollBarThickness = 6
 	ui.TrainFrame.ScrollingEnabled = true
 	Training.hideQueueError()
 
@@ -204,7 +204,7 @@ function module.renderProductionHub(model, bType, bData, context)
 
 		for index, unitName in ipairs(queue) do
 			local row = Instance.new("TextButton")
-			row.Size = UDim2.new(0, 198, 1, 0)
+			row.Size = UDim2.new(0, 56, 1, 0)
 			row.BackgroundColor3 = Theme.Panel
 			row.BorderSizePixel = 0
 			row.Text = ""
@@ -213,19 +213,17 @@ function module.renderProductionHub(model, bType, bData, context)
 			Layout.addStroke(row, 1, Theme.Stroke)
 
 			local icon = Instance.new("Frame")
-			icon.Size = UDim2.new(0, 28, 0, 28)
-			icon.Position = UDim2.new(0, 8, 0.5, -14)
+			icon.Size = UDim2.new(1, -8, 0, 28)
+			icon.Position = UDim2.new(0, 4, 0, 4)
 			icon.BackgroundColor3 = Theme.Inset
 			icon.BorderSizePixel = 0
 			icon.Parent = row
 			Layout.addCorner(icon, UDim.new(0, 2))
 			Rendering.renderUnitViewport(icon, unitName)
 
-			local title = Layout.createText(row, Rendering.formatUnitDisplayName(unitName), UDim2.new(1, -52, 0, 18), UDim2.new(0, 42, 0, 6), Enum.Font.GothamBold, Theme.Text, Enum.TextXAlignment.Left, Theme)
-			title.TextSize = 12
 			local etaText = snapshot and index == 1 and formatQueueEta(snapshot.Remaining) or ("#" .. tostring(index))
-			local meta = Layout.createText(row, etaText, UDim2.new(1, -48, 0, 16), UDim2.new(0, 42, 0, 24), Enum.Font.GothamBold, Theme.Text, Enum.TextXAlignment.Left, Theme)
-			meta.TextSize = 12
+			local meta = Layout.createText(row, etaText, UDim2.new(1, 0, 0, 14), UDim2.new(0, 0, 1, -16), Enum.Font.GothamBold, Theme.Text, Enum.TextXAlignment.Center, Theme)
+			meta.TextSize = 11
 
 			row.MouseButton1Click:Connect(function()
 				UnitEvent:FireServer("CancelTrain", model, index)

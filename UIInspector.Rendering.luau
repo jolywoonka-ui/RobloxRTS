@@ -176,7 +176,22 @@ function module.renderUnitViewport(container, unitName)
 	local radius = math.max(size.X, size.Y, size.Z)
 	local focus = cf.Position
 	camera.FieldOfView = 36
-	camera.CFrame = CFrame.new(focus + Vector3.new(radius * 1.18, radius * 0.46, radius * 1.18), focus)
+	local offset = Vector3.new(radius * 1.18, radius * 0.46, radius * 1.18)
+	camera.CFrame = CFrame.new(focus + offset, focus)
+
+	-- Make the unit viewmodels spin
+	local startTick = tick()
+	local conn
+	conn = runService.RenderStepped:Connect(function()
+		if not viewport.Parent then
+			conn:Disconnect()
+			return
+		end
+		local timePassed = tick() - startTick
+		local angle = timePassed * math.pi * 0.5 -- rotate at 0.5 pi radians per second
+		local rotatedOffset = CFrame.Angles(0, angle, 0) * offset
+		camera.CFrame = CFrame.new(focus + rotatedOffset, focus)
+	end)
 end
 
 function module.createInfoRow(parent, labelText, valueText, valueColor)
