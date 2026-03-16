@@ -366,7 +366,7 @@ local function _updateBuilderQueue(queueList, queue, lastQueueRefresh, model)
 end
 
 local function _createDefensePanel(shell, model, context)
-	local ServerEvents = game:GetService("ReplicatedStorage"):WaitForChild("ServerEvents")
+	local ChangeHQDefenseMode = game:GetService("ReplicatedStorage"):WaitForChild("ChangeHQDefenseMode")
 	local defPanel = Instance.new("Frame")
 	defPanel.Size = UDim2.new(0.56, -6, 1, 0)
 	defPanel.Position = UDim2.new(0.44, 6, 0, 0)
@@ -415,7 +415,7 @@ local function _createDefensePanel(shell, model, context)
 
 		context.connections = context.connections or {}
 		table.insert(context.connections, mb.MouseButton1Click:Connect(function()
-			ServerEvents.ChangeHQDefenseMode:FireServer(model, k)
+			ChangeHQDefenseMode:FireServer(model, k)
 		end))
 		mButtons[k] = mb
 	end
@@ -425,7 +425,8 @@ end
 
 
 function module.renderHeadquartersPanel(model, bData, context)
-	local ServerEvents = game:GetService("ReplicatedStorage"):WaitForChild("ServerEvents")
+	local QueueBuilder = game:GetService("ReplicatedStorage"):WaitForChild("QueueBuilder")
+	local Config = require(game:GetService("ReplicatedStorage"):WaitForChild("BuildingConfig"))
 	local ui = context.ui
 	_setupHQBaseUI(ui, model, bData, context)
 
@@ -442,7 +443,7 @@ function module.renderHeadquartersPanel(model, bData, context)
 	table.insert(context.connections, builderButton.MouseButton1Click:Connect(function()
 		local cur = model:GetAttribute("Queue")
 		if not cur or #string.split(cur, ",") < 5 then
-			ServerEvents.QueueBuilder:FireServer(model)
+			QueueBuilder:FireServer(model)
 		end
 	end))
 
@@ -460,11 +461,12 @@ function module.renderHeadquartersPanel(model, bData, context)
 		lastQueueRefresh = _updateBuilderQueue(queueList, queue, lastQueueRefresh, model)
 
 		local count = #queue
+		local builderCost = (Config.Units.Builder and Config.Units.Builder.Cost) or 50
 		if count >= 5 then
 			builderButton.Text = "QUEUE FULL"
 			builderButton.BackgroundColor3 = Theme.Alert
 		else
-			builderButton.Text = "HIRE BUILDER ($500)"
+			builderButton.Text = "HIRE BUILDER ($" .. tostring(builderCost) .. ")"
 			builderButton.BackgroundColor3 = Theme.Highlight
 		end
 	end))
@@ -554,7 +556,7 @@ local function _getResearchUnlockSummary(key)
 end
 
 local function _updateResearchGrid(treePanel, listLayout, shell, model, context)
-	local ServerEvents = game:GetService("ReplicatedStorage"):WaitForChild("ServerEvents")
+	local StartResearch = game:GetService("ReplicatedStorage"):WaitForChild("StartResearch")
 	local Config = require(game:GetService("ReplicatedStorage"):WaitForChild("BuildingConfig"))
 	local pStats = context.pStats
 	for _, child in ipairs(treePanel:GetChildren()) do
@@ -618,7 +620,7 @@ local function _updateResearchGrid(treePanel, listLayout, shell, model, context)
 			btn.Parent = item
 			Layout.addCorner(btn, UDim.new(0, 3))
 			table.insert(context.connections, btn.MouseButton1Click:Connect(function()
-				ServerEvents.StartResearch:FireServer(model, k)
+				StartResearch:FireServer(model, k)
 			end))
 		else
 			statLbl.Text = "LOCKED"
