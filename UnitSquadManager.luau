@@ -195,7 +195,7 @@ local function createUnitRow(parent, unit, index)
 	row.Parent = parent
 
 	UIStyle.createLabel(row, getUnitDisplayName(unit), UDim2.new(0.62, -8, 0, 12), UDim2.new(0, 0, 0, 0), THEME.FontBody, 10, THEME.Text)
-	UIStyle.createLabel(row, string.format("%d/%d", math.floor(health + 0.5), math.floor(maxHealth + 0.5)), UDim2.new(0.38, 0, 0, 12), UDim2.new(0.62, 0, 0, 0), THEME.FontBody, 9, THEME.SubText, Enum.TextXAlignment.Right)
+	local hpLabel = UIStyle.createLabel(row, string.format("%d/%d", math.floor(health + 0.5), math.floor(maxHealth + 0.5)), UDim2.new(0.38, 0, 0, 12), UDim2.new(0.62, 0, 0, 0), THEME.FontBody, 9, THEME.SubText, Enum.TextXAlignment.Right)
 
 	local hpBack = Instance.new("Frame")
 	hpBack.Size = UDim2.new(1, 0, 0, 6)
@@ -225,6 +225,17 @@ local function createUnitRow(parent, unit, index)
 			callbacks.onSelectUnit(unit)
 		end
 	end)
+
+	local function updateDisplay()
+		if not row.Parent then return end
+		local h, mh, p = getUnitHealth(unit)
+		hpLabel.Text = string.format("%d/%d", math.floor(h + 0.5), math.floor(mh + 0.5))
+		hpFill.Size = UDim2.new(p, 0, 1, 0)
+		hpFill.BackgroundColor3 = p < 0.3 and THEME.Negative or (p < 0.6 and THEME.Warning or THEME.Positive)
+	end
+
+	unit:GetAttributeChangedSignal("Health"):Connect(updateDisplay)
+	unit:GetAttributeChangedSignal("MaxHealth"):Connect(updateDisplay)
 end
 
 local function buildSquadCard(parent, squad, metrics, layoutOrder)

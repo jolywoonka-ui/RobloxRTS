@@ -390,7 +390,7 @@ local function buildManualPage()
 			local stroke = button:FindFirstChildWhichIsA("UIStroke")
 			if stroke then
 				stroke.Color = active and THEME.Selection or THEME.Stroke
-				stroke.Transparency = active and 0.15 or 0.5
+				stroke.Transparency = active and 0.45 or 0.8
 			end
 		end
 

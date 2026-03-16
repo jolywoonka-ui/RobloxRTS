@@ -104,7 +104,7 @@ window.AnchorPoint = Vector2.new(0.5, 0.5)
 window.BorderSizePixel = 0
 window.Visible = false
 window.Parent = screen
-UIStyle.applyPanel(window, "background")
+UIStyle.applyPanel(window, "panel")
 
 local header = Instance.new("Frame")
 header.Size = UDim2.new(1, -40, 0, 32)

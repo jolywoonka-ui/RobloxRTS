@@ -323,6 +323,9 @@ local function _createBuilderPanel(shell)
 	builderButton.BorderSizePixel = 0
 	builderButton.BackgroundColor3 = Theme.PanelAlt
 	builderButton.Text = ""
+	builderButton.TextColor3 = Theme.Text
+	builderButton.Font = Enum.Font.GothamBold
+	builderButton.TextSize = 12
 	builderButton.Parent = builderPanel
 	Layout.addCorner(builderButton, UDim.new(0, 3))
 	Layout.addStroke(builderButton, 1, Theme.Stroke)
