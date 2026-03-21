@@ -26,6 +26,7 @@ local ghostFolder = nil
 local ghostUnits = {}
 local ghostGroundOffsets = {}
 local previewConnection = nil
+local globalGhostTemplates = {}
 
 local FORMATION_SPACING = 3.2
 local FORMATION_DEPTH_SPACING = 2.7
@@ -952,9 +953,12 @@ local function createGhosts()
 		return 0.5
 	end
 
-	local ghostTemplates = {}
 	for _, unit in ipairs(selected) do
-		local template = ghostTemplates[unit.Name]
+		local templateName = unit.Name
+		if unit:GetAttribute("TeamColor") then
+			templateName = templateName .. "_" .. tostring(unit:GetAttribute("TeamColor"))
+		end
+		local template = globalGhostTemplates[templateName]
 		if not template then
 			template = unit:Clone()
 			template.Name = "Ghost_" .. unit.Name
@@ -972,19 +976,13 @@ local function createGhosts()
 			end
 			local hum = template:FindFirstChildOfClass("Humanoid")
 			if hum then hum:Destroy() end
-			ghostTemplates[unit.Name] = template
+			globalGhostTemplates[templateName] = template
 		end
 
 		local ghost = template:Clone()
-		local hum = ghost:FindFirstChildOfClass("Humanoid")
-		if hum then hum:Destroy() end
 		ghost.Parent = ghostFolder
 		table.insert(ghostUnits, ghost)
 		ghostGroundOffsets[ghost] = computeGroundOffset(ghost)
-	end
-
-	for _, template in pairs(ghostTemplates) do
-		template:Destroy()
 	end
 end
 
